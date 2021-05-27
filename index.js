@@ -1,15 +1,12 @@
-const express = require('express')
-const app = express()
-var morgan = require('morgan')
+const app = require('./app')
+const http = require('http') 
+const config = require('./utils/config')
+const logger = require('./utils/logger')
 
-app.use(morgan('tiny'))
-app.use(express.json())
+const server = http.createServer(app)
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World!</h1>')
+server.listen(config.PORT, () => {
+  logger.info(`Server running on port ${config.PORT}`)
 })
 
-const PORT = 3001
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+// info on nodeJs creteServer method, http module etc can be found here - https://nodejs.org/en/docs/guides/getting-started-guide/
