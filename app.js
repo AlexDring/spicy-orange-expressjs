@@ -2,6 +2,9 @@ const config = require('./utils/config')
 const express = require('express')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
+
+const omdbRouter = require('./controllers/omdb')
+
 const app = express()
 var morgan = require('morgan')
 
@@ -14,6 +17,8 @@ mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology
 
 app.use(morgan('tiny'))
 app.use(express.json())
+
+app.use('/api/omdb', omdbRouter)
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
