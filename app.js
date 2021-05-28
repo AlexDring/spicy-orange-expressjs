@@ -4,6 +4,7 @@ const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 
 const omdbRouter = require('./controllers/omdb')
+const usersRouter = require('./controllers/users')
 
 const app = express()
 var morgan = require('morgan')
@@ -19,6 +20,7 @@ app.use(morgan('tiny'))
 app.use(express.json())
 
 app.use('/api/omdb', omdbRouter)
+app.use('/api/users', usersRouter)
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
