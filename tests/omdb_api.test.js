@@ -19,7 +19,7 @@ test('the first result is inception with correct imdbId', async () => {
 
 test('searching using the imdbID returns an individual media item', async () => {
   const response = await api.get('/api/omdb/i=tt1375666&plot=full')
-  console.log(response.body);
+
   expect(response.body.Title).toBe('Inception')
   expect(response.body.Runtime).toBe('148 min')
   expect(response.body.Ratings).toHaveLength(3)
