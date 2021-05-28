@@ -6,7 +6,7 @@ const User = require('../models/user')
 usersRouter.route('/')
   .get(async (req, res) => {
     const response = await User.find({})
-    console.log(response);
+
     res.json(response)
   })
   .post(async (req, res) => {
@@ -25,5 +25,21 @@ usersRouter.route('/')
     const savedUser = await user.save()
     res.json(savedUser)
   })
+
+  usersRouter.route('/:id')
+    .get(async (req, res) => {
+      const user = await User.findById(req.params.id)
+
+      res.json(user)
+    })
+    .put(async (req, res) => {
+      const { avatar } = req.body
+      console.log(avatar);
+      const updateUser = await User.findById(req.params.id)
+      updateUser.avatar = avatar
+      const savedUser = await updateUser.save()
+
+      res.json(savedUser)
+    })
 
 module.exports = usersRouter

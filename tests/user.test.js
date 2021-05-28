@@ -40,9 +40,48 @@ test('a valid user can be added', async () => {
   const response = await api.get('/api/users')
 
   expect(response.body).toHaveLength(initialUsers.length + 1)
-  
+
   const usernames = response.body.map(u => u.username)
   expect(usernames).toContain("Dringer")
+})
+
+test('all users can be returned', async () => {
+  const newUser = {
+    username: 'Add one more user',
+    name: 'Alex Dring',
+    password: 'Tester123'
+  }
+  await api.post('/api/users').send(newUser)
+
+  const response = await api.get('/api/users')
+  expect(response.body).toHaveLength(3)
+})
+
+test('an individual user can be returned', async () => {
+  const newUser = {
+    username: "Individual",
+    name: "John Doe",
+    password: "normal"
+  }
+
+  const savedUser = await api.post('/api/users').send(newUser)
+
+  const individualUser = await api.get(`/api/users/${savedUser.body._id}`)
+
+  expect(individualUser.body.username).toBe('Individual')
+  expect(individualUser.body.name).toBe('John Doe')
+})
+
+test('an avatar image can be updated', async () => {
+  const response = await api.get('/api/users')
+  console.log(response.body);
+  const updatedUser = await api
+    .put(`/api/users/${response.body[0]._id}`)
+    .send({
+      'avatar': 'https://en.wikipedia.org/wiki/Thumb_signal#/media/File:Beijing_bouddhist_monk_2009_IMG_1486.JPG'
+    })
+
+  expect(updatedUser.body.avatar).toContain('https://en.wikipedia.org/wiki/Thumb_signal#/media/File:Beijing_bouddhist_monk_2009_IMG_1486.JPG')
 })
 
 afterAll(async () => {
