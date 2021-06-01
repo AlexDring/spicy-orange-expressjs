@@ -34,7 +34,7 @@ usersRouter.route('/')
     })
     .put(async (req, res) => {
       const { avatar } = req.body
-      console.log(avatar);
+
       const updateUser = await User.findById(req.params.id)
       updateUser.avatar = avatar
       const savedUser = await updateUser.save()
