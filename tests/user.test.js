@@ -74,7 +74,7 @@ test('an individual user can be returned', async () => {
 
 test('an avatar image can be updated', async () => {
   const response = await api.get('/api/users')
-  console.log(response.body);
+  
   const updatedUser = await api
     .put(`/api/users/${response.body[0]._id}`)
     .send({

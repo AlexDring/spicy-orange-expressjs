@@ -5,7 +5,8 @@ const app = require('../app')
 const api = supertest(app)
 
 test('media results are returned as json', async () => {
-  await api.get('/api/omdb/s=inception')
+  await api
+  .get('/api/omdb/s=inception')
   .expect(200)
   .expect('Content-Type', /application\/json/)
 })
