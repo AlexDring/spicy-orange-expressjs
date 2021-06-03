@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
 
 const mediaDetailSchema = new mongoose.Schema({
-  media: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+  // media: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
   Rated: String,
   Released: String,
   Writer: String,
