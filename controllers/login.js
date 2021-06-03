@@ -3,7 +3,6 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-
 loginRouter.post('/', async (req, res) => {
   const { username, password } = req.body
 
