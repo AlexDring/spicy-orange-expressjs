@@ -149,13 +149,11 @@ describe('when media is posted to the api', () => {
     expect(mediaCollection.length).toEqual(2)
     expect(mediaDetailsCollection.length).toEqual(2)
   })
-  test('if the media id is included in the url, the media details field is populate by the relevant mediaDetail document', async () => {
+  test('if the media id is included in the url, the media details field is populated by the relevant mediaDetail document', async () => {
     let media = await Media.find({})
-    console.log(media[0].mediaDetail);
     const inception = await api.get(`/api/media/${media[0]._id}`)
-    
+
     expect(inception.body.Title).toEqual('Inception')
-    expect(inception.body.mediaDetail).not.toEqual
     expect(inception.body.mediaDetail.imdbID).toEqual('tt1375666')
   })
 })
