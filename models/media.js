@@ -13,7 +13,8 @@ const mediaSchema = new mongoose.Schema({
   imdbRating: String,
   rottenAverage: Number,
   dateAdded: String,
-  user: String
+  user: String,
+  mediaDetail: { type: mongoose.Schema.Types.ObjectId, ref: 'MediaDetail' },
 })
 
 module.exports = mongoose.model('Media', mediaSchema)
