@@ -11,7 +11,8 @@ const mediaRouter = require('./controllers/media')
 
 const middleware = require('./utils/middleware')
 const app = express()
-var morgan = require('morgan')
+var morgan = require('morgan');
+
 
 mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => {
@@ -28,5 +29,6 @@ app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/omdb', omdbRouter)
 app.use('/api/media', mediaRouter)
+
 
 module.exports = app
