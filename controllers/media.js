@@ -68,7 +68,7 @@ mediaRouter.route('/')
     res.status(201).json(savedMedia)
   })
 
-  mediaRouter.route('/:id')
+mediaRouter.route('/:id')
   .get(async (req, res) => {
     const response = await Media.findById(req.params.id).populate('mediaDetail')
 
@@ -97,6 +97,58 @@ mediaRouter.route('/')
 
     await media.remove()
     await mediaDetail.remove()
+
+    res.status(204).end()
+  })
+
+  mediaRouter.route('/:mediaDetailId/review')
+  .post(async (req, res) => {
+    const { user, score, review, avatar } = req.body
+
+    const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+
+    if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
+      return res.status(401).json({ error: 'only one review can be added per user' })
+    }
+  
+    const newReview =  {
+      user: user,
+      avatar: avatar,
+      score: score,
+      review: review
+    }
+
+    reviewedMediaDetail.rottenReviews.push(newReview)
+
+    const result = await reviewedMediaDetail.save()
+
+    res.status(201).json(result)
+  })
+  .put(async (req, res) => {
+    const { reviewId, score, review } = req.body
+    console.log(req.body)
+
+    const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+
+    const updatedReview = {
+      score: score,
+      review: review
+    }
+
+    const oldReview = mediaDetail.rottenReviews.id(reviewId)
+    oldReview.set(updatedReview)
+    // Info on subdocument .id method and .set can be found here - https://stackoverflow.com/questions/40642154/use-mongoose-to-update-subdocument-in-array. Mongoose docs for .id are missing!!!
+
+    const result = await mediaDetail.save()
+    res.status(201).json(result)
+  })  
+  .delete(async (req, res) => {
+    const { reviewId } = req.body
+    const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+
+    mediaDetail.rottenReviews.id(reviewId).remove()
+
+    await mediaDetail.save()
 
     res.status(204).end()
   })

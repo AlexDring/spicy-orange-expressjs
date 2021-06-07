@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const rottenReviewSchema = require('../models/rottenReview')
 
 const mediaSchema = new mongoose.Schema({
   Poster: String,
