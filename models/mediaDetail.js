@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
-const rottenReviewSchema = require('../models/rottenReview')
+// const rottenReviewSchema = require('../models/rottenReview')
 
 const mediaDetailSchema = new mongoose.Schema({
   // media: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
@@ -23,7 +23,7 @@ const mediaDetailSchema = new mongoose.Schema({
   Website: String,
   Response: String,
   dateAdded: String,
-  rottenReviews: [rottenReviewSchema],
+  rottenReviews: [{ score: Number, user: String, review: String }],
   userId: String
 })
 

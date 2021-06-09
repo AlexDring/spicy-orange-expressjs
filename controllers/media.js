@@ -2,6 +2,7 @@ const mediaRouter = require('express').Router()
 const Media = require('../models/media')
 const MediaDetail = require('../models/mediaDetail')
 const User = require('../models/user')
+const Review = require('../models/rottenReview')
 const jwt = require('jsonwebtoken')
 const { response } = require('express')
 
@@ -103,23 +104,29 @@ mediaRouter.route('/:id')
 
   mediaRouter.route('/:mediaDetailId/review')
   .post(async (req, res) => {
-    const { user, score, review, avatar } = req.body
-
+    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster } = req.body
+    console.log(req.body);
+    // const reviewedMedia = await Media.findById(req.params.mediaId)
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
 
     if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
       return res.status(401).json({ error: 'only one review can be added per user' })
     }
   
-    const newReview =  {
+    const newReview = new Review({
+      mediaDetailId: mediaDetailId,
+      mediaId: mediaId,
       user: user,
       avatar: avatar,
+      title: title,
+      poster: poster,
       score: score,
       review: review
-    }
+    })
 
     reviewedMediaDetail.rottenReviews.push(newReview)
 
+    await newReview.save()
     const result = await reviewedMediaDetail.save()
 
     res.status(201).json(result)
@@ -129,6 +136,14 @@ mediaRouter.route('/:id')
     console.log(req.body)
 
     const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+    // console.log(mediaDetail);
+
+    await Review.findByIdAndUpdate(reviewId, {
+      score: score,
+      review: review
+    }) 
+
+    // console.log(updateReview);
 
     const updatedReview = {
       score: score,
@@ -139,15 +154,18 @@ mediaRouter.route('/:id')
     oldReview.set(updatedReview)
     // Info on subdocument .id method and .set can be found here - https://stackoverflow.com/questions/40642154/use-mongoose-to-update-subdocument-in-array. Mongoose docs for .id are missing!!!
 
+    // await updateReview.save()
     const result = await mediaDetail.save()
     res.status(201).json(result)
   })  
   .delete(async (req, res) => {
-    const { reviewId } = req.body
-    const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+    const { reviewId, mediaDetailId, mediaId } = req.body
 
+    const mediaDetail = await MediaDetail.findById(mediaDetailId)
+    
     mediaDetail.rottenReviews.id(reviewId).remove()
-
+    
+    await Review.findByIdAndDelete(reviewId)
     await mediaDetail.save()
 
     res.status(204).end()

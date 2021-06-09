@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const rottenReviewSchema = require('../models/rottenReview')
+
 
 const mediaSchema = new mongoose.Schema({
   Poster: String,
@@ -12,6 +12,7 @@ const mediaSchema = new mongoose.Schema({
   Language: String,
   Metascore: String,
   imdbRating: String,
+  rottenCount: Number,
   rottenAverage: Number,
   dateAdded: String,
   user: String,
