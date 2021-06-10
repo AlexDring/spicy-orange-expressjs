@@ -122,4 +122,12 @@ const upMovie = {
   Response: "True"
   }
 
-module.exports = { initialMedia, upMovie }
+const mediaInDatabase = async () => {
+ return await Media.find({})
+}
+
+const mediaDetailInDatabase = async () => {
+ return await MediaDetail.find({})
+}
+
+module.exports = { initialMedia, upMovie, mediaInDatabase }
