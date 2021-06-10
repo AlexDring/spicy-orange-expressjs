@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 
+
 const mediaSchema = new mongoose.Schema({
   Poster: String,
   Title: String,
@@ -11,6 +12,7 @@ const mediaSchema = new mongoose.Schema({
   Language: String,
   Metascore: String,
   imdbRating: String,
+  rottenCount: Number,
   rottenAverage: Number,
   dateAdded: String,
   user: String,

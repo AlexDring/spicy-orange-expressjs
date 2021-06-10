@@ -11,14 +11,18 @@ const mediaRouter = require('./controllers/media')
 
 const middleware = require('./utils/middleware')
 const app = express()
-var morgan = require('morgan')
+var morgan = require('morgan');
 
-mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+mongoose.set('useCreateIndex', true)
+
+mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    logger.info(`connected to MongoDb`)
-  }).catch((error) => {
-    logger.error(`error connecting to MongoDb`, error.message)
+    logger.info('connected to MongoDB')
   })
+  .catch((error) => {
+    logger.error('error connection to MongoDB:', error.message)
+  })
+mongoose.set('useFindAndModify', false)
 
 app.use(morgan('tiny'))
 app.use(express.json())
