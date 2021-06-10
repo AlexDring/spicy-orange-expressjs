@@ -159,7 +159,7 @@ mediaRouter.route('/:id')
     res.status(201).json(result)
   })  
   .delete(async (req, res) => {
-    const { reviewId, mediaDetailId, mediaId } = req.body
+    const { reviewId, mediaDetailId} = req.body
 
     const mediaDetail = await MediaDetail.findById(mediaDetailId)
     

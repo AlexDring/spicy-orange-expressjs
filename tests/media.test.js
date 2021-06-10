@@ -163,12 +163,15 @@ describe('when a review is posted to the api', () => {
   beforeEach(async () => {
     let media = await Media.find({})
 
-
     const jokerReview = {
-      user: 'Testing',
-      avatar: "testing.jpeg",
-      score: 626,
-      review: "Bang average"
+      mediaDetailId: `${media[1].mediaDetail}`,
+      mediaId: `${media[1]._id}`,
+      title: "Joker",
+      poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+      user: "Dank1",
+      avatar: "test.jpg",
+      score: 123,
+      review: "not niceeee" 
     }
     await api
       .post(`/api/media/${media[1].mediaDetail}/review`)
@@ -226,6 +229,7 @@ describe('when a review is posted to the api', () => {
     await api
       .delete(`/api/media/${media[1].mediaDetail}/review`)
       .send({
+        mediaDetailId: `${mediaDetail[1]._id}`,
         reviewId: `${mediaDetail[1].rottenReviews[0]._id}`
       })
       .expect(204)
@@ -233,6 +237,104 @@ describe('when a review is posted to the api', () => {
     const mediaDetailAtEnd = await MediaDetail.find({})
     expect(mediaDetailAtEnd[1].rottenReviews.length).toEqual(0)  
   })
+  test('the review count and average is posted to the relevant media document', async () => {
+    let media = await Media.find({})
+
+    const jokerReview = {
+      mediaDetailId: `${media[1].mediaDetail}`,
+      mediaId: `${media[1]._id}`,
+      title: "Joker",
+      poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+      user: "Dank4",
+      avatar: "test.jpg",
+      score: 768,
+      review: "niceeee" 
+    }
+
+    await api
+    .post(`/api/media/${media[1].mediaDetail}/review`)
+    .send(jokerReview)
+    .expect(201)
+
+    const mediaAtEnd = await Media.find({})
+    console.log(mediaAtEnd, 'mediamediamedia');
+    expect(mediaAtEnd[1].rottenAverage).toEqual(445.5)  
+    expect(mediaAtEnd[1].rottenCount).toEqual(2)  
+  })
+  test('editing a review also updates the rottenAverage/rottenCount on the relevant media document', async () => {
+    let media = await Media.find({})
+
+    const jokerReview = {
+      mediaDetailId: `${media[1].mediaDetail}`,
+      mediaId: `${media[1]._id}`,
+      title: "Joker",
+      poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+      user: "Dank4",
+      avatar: "test.jpg",
+      score: 768,
+      review: "niceeee" 
+    }
+
+    await api
+    .post(`/api/media/${media[1].mediaDetail}/review`)
+    .send(jokerReview)
+    .expect(201)
+
+    const mediaDetail = await MediaDetail.find({})
+
+    await api
+      .put(`/api/media/${mediaDetail[1]._id}/review`)
+      .send({
+        mediaDetailId: `${mediaDetail[1]._id}`,
+        reviewId: `${mediaDetail[1].rottenReviews[1]._id}`,
+        score: 999,
+        review: "difffeerrent" 
+      })
+      .expect(201)
+
+    const mediaDetailAfterUpdate = await MediaDetail.find({}) 
+    expect(mediaDetailAfterUpdate[1].rottenReviews[1].score).toEqual(999)
+
+    let mediaAfterUpdate = await Media.find({})
+    expect(mediaAfterUpdate[1].rottenAverage).toEqual(561)
+    expect(mediaAfterUpdate[1].rottenCount).toEqual(2)
+  }) 
+  test('deleting a review also updates the rottenAverage/rottenCount on the relevant media document', async () => {
+    let media = await Media.find({})
+
+    const jokerReview = {
+      mediaDetailId: `${media[1].mediaDetail}`,
+      mediaId: `${media[1]._id}`,
+      title: "Joker",
+      poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
+      user: "Dank4",
+      avatar: "test.jpg",
+      score: 768,
+      review: "niceeee" 
+    }
+
+    await api
+    .post(`/api/media/${media[1].mediaDetail}/review`)
+    .send(jokerReview)
+    .expect(201)
+
+    const mediaDetail = await MediaDetail.find({})
+
+    await api
+      .delete(`/api/media/${mediaDetail[1]._id}/review`)
+      .send({
+        mediaDetailId: `${mediaDetail[1]._id}`,
+        reviewId: `${mediaDetail[1].rottenReviews[1]._id}`,
+      })
+      .expect(204)
+
+    const mediaDetailAfterUpdate = await MediaDetail.find({}) 
+    expect(mediaDetailAfterUpdate[1].rottenReviews.length).toEqual(1)
+
+    let mediaAfterUpdate = await Media.find({})
+    expect(mediaAfterUpdate[1].rottenAverage).toEqual(123)
+    expect(mediaAfterUpdate[1].rottenCount).toEqual(1)
+  }) 
 })
 
 afterAll(async () => {
