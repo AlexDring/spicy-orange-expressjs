@@ -9,14 +9,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   passwordHash: String,
   avatar: String,
-  recommendations: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'Recommendations' }
-  ],
-  watchlist: [{
-    toWatch: { type: mongoose.Schema.Types.ObjectId, ref: 'Recommendations' },
-    dateAdded: Date,
-  }],
-  watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendations' }]
+  profile_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile' }
 })
 
 userSchema.plugin(uniqueValidator)
