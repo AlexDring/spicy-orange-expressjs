@@ -105,9 +105,10 @@ mediaRouter.route('/:id')
   mediaRouter.route('/:mediaDetailId/review')
   .post(async (req, res) => {
     const { mediaDetailId, mediaId, user, score, review, avatar, title, poster } = req.body
-    console.log(req.body);
+
     // const reviewedMedia = await Media.findById(req.params.mediaId)
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+    // console.log(reviewedMediaDetail);
 
     if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
       return res.status(401).json({ error: 'only one review can be added per user' })
@@ -136,7 +137,6 @@ mediaRouter.route('/:id')
     console.log(req.body)
 
     const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
-    // console.log(mediaDetail);
 
     await Review.findByIdAndUpdate(reviewId, {
       score: score,

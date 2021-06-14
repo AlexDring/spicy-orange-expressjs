@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { findByIdAndUpdate } = require('../models/media');
 const Media = require('../models/media')
 
 const rottenReviewSchema = new mongoose.Schema({
