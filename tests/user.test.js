@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const User = require('../models/user')
+const Profile = require('../models/profile')
 const api = supertest(app)
 
 const initialUsers = [
@@ -19,6 +20,7 @@ const initialUsers = [
 
 beforeEach(async () => {
   await User.deleteMany({})
+  await Profile.deleteMany({})
   let userObject = new User(initialUsers[0])
   await userObject.save()
   userObject = new User(initialUsers[1])
@@ -43,6 +45,27 @@ test('a valid user can be added', async () => {
 
   const usernames = response.body.map(u => u.username)
   expect(usernames).toContain("Dringer")
+})
+
+test('a profile document is also created and referenced on the user document', async () => {
+  const newUser = {
+    username: 'Dringer',
+    name: 'Alex Dring',
+    password: 'Tester123'
+  }
+  await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+  
+  const response = await api.get('/api/users')
+
+  expect(response.body).toHaveLength(initialUsers.length + 1)
+  const profiles = await Profile.find({})
+
+  expect(response.body[response.body.length - 1].profile_id.toString())
+  .toEqual(profiles[profiles.length - 1]._id.toString())
 })
 
 test('all users can be returned', async () => {

@@ -13,10 +13,10 @@ const profileSchema = new mongoose.Schema({
     Language: String,
   }],
   watchlist: [{
-    toWatch: { type: mongoose.Schema.Types.ObjectId, ref: 'Recommendations' },
-    dateAdded: Date,
+    media_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    date_added: Date,
   }],
-  watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendations' }]
+  watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }]
 })
 
 module.exports = mongoose.model('Profile', profileSchema)
