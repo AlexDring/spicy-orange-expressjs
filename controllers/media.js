@@ -4,7 +4,7 @@ const MediaDetail = require('../models/mediaDetail')
 const User = require('../models/user')
 const Review = require('../models/rottenReview')
 const jwt = require('jsonwebtoken')
-const { response } = require('express')
+// const { response } = require('express')
 
 mediaRouter.route('/')
   .get(async (req, res) => {
@@ -14,7 +14,7 @@ mediaRouter.route('/')
   })
   .post(async (req, res) => {
     const body = req.body
-    
+    console.log(body);
     if(!req.token) {
       return res.status(401).json({ error: 'token missing' })
     }
@@ -75,8 +75,10 @@ mediaRouter.route('/:id')
 
     res.json(response)
   })
-  .delete(async (req, res) => {
-    const { mediaId, mediaDetailId } = req.body
+
+  mediaRouter.delete('/:media_id/:mediaDetail_id', async (req, res) => {
+    const { media_id, mediaDetail_id } = req.params
+    console.log(media_id, mediaDetail_id);
 
     const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
@@ -85,15 +87,16 @@ mediaRouter.route('/:id')
     }
 
     const user = await User.findById(decodedToken.id)
-    const media = await Media.findById(mediaId)
-    const mediaDetail = await MediaDetail.findById(mediaDetailId)
-
+    const media = await Media.findById(media_id)
+    const mediaDetail = await MediaDetail.findById(mediaDetail_id)
+    
+    console.log(user, mediaDetail)
     if(user._id.toString() !== mediaDetail.userId) {
-      return res.status(401).json({ error: 'only the user who added media can delete it' })
+      return res.status(400).json({ error: 'only the user who added the recommendation can delete it' })
     }
 
     if(mediaDetail.rottenReviews.length > 0) {
-      return res.status(401).json({ error: 'media with rotten reviews can\'t be deleted' })
+      return res.status(400).json({ error: 'media with rotten reviews can\'t be deleted' })
     }
 
     await media.remove()

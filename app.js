@@ -9,6 +9,7 @@ const profileRouter = require('./controllers/profile')
 const loginRouter = require('./controllers/login')
 const omdbRouter = require('./controllers/omdb')
 const mediaRouter = require('./controllers/media')
+const rottenReviewRouter = require('./controllers/rottenReviews')
 
 const middleware = require('./utils/middleware')
 const app = express()
@@ -34,5 +35,9 @@ app.use('/api/profile', profileRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/omdb', omdbRouter)
 app.use('/api/media', mediaRouter)
+app.use('/api/rottenReviews', rottenReviewRouter)
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 module.exports = app

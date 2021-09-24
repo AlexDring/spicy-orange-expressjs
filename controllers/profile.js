@@ -2,15 +2,21 @@ const profileRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
 const Profile = require('../models/profile')
 
+profileRouter.get('/:id', async (req, res) => {
+  const profile = await Profile.findById(req.params.id)
+  console.log(profile);
+    res.json(profile)
+})
+
 profileRouter.route('/:id/watchlist')
   .get(async (req, res) => {
     const watchlist = await Profile.findById(req.params.id).populate('watchlist.media_id')
     console.log(watchlist);
-    res.json(watchlist)
+    res.json(watchlist) 
   })
   .post(async (req, res) => {
     const { media_id, date_added } = req.body
-
+    console.log(req.body, 'here')
     try {
       await jwt.verify(req.token, process.env.SECRET)
     } catch(error) {
@@ -28,19 +34,19 @@ profileRouter.route('/:id/watchlist')
     
     res.status(201).json(savedProfile)
   })
-  .delete(async (req, res) => {
-    const body = req.body
-    console.log(body);
 
+profileRouter.delete('/:id/watchlist/:watchlistId', 
+  async (req, res) => {
     try {
       await jwt.verify(req.token, process.env.SECRET)
     } catch(error) {
       return res.status(401).json({ error: 'token invalid or missing' })
     }
-
+    
+    console.log('HERERE');
     const profile = await Profile.findById(req.params.id)
 
-    profile.watchlist.remove(body.media_id)
+    profile.watchlist.remove(req.params.watchlistId)
 
     await profile.save()
     

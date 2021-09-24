@@ -48,9 +48,9 @@ describe('when an watchlist item is posted to the api', () => {
   test('it is saved on the users profile document', async () => {
     const media = await Media.find({})
     const profile = await Profile.find({})
-    console.log(profile, 'profile.bodyprofile.bodyprofile.bodyprofile.body');
+    console.log(profile, 'profile.bodyprofile.bodyprofile.bodyprofile.body', profile[0]._id);
 
-    const result = api.post(`/api/${profile[0]._id}/watchlist`)
+    const result = await api.post(`/api/${profile[0]._id}/watchlist`)
     .send({
       media_id: media[0]._id,
       date_added: "Mon Jun 14 2021 14:18:09 GMT+0100"

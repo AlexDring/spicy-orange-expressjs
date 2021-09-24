@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 loginRouter.post('/', async (req, res) => {
   const { username, password } = req.body
-
+  console.log(req.body)
   // Get user
   const user = await User.findOne({ username: username })
 
@@ -29,8 +29,17 @@ loginRouter.post('/', async (req, res) => {
     username: user.username,
     name: user.name,
     avatar: user.avatar,
+    profile_id: user.profile_id,
     id: user._id,
   })
 })
+
+loginRouter.get('/me', async (req, res) => {
+  const decodedToken = jwt.verify(req.token, process.env.SECRET)
+
+  const user = await User.findById(decodedToken.id)
+  res.json(user)
+})
+
 
 module.exports = loginRouter

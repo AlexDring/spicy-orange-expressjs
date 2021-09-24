@@ -14,6 +14,7 @@ const rottenReviewSchema = new mongoose.Schema({
 
 // Below is a static method that gets the called by the .post/.pre middleware below, each time a review is posted, edited, deleted. It's created as a static method because the aggregate function needs to be called on the model.
 rottenReviewSchema.statics.calcAverageRatings = async function (mediaDetailId, mediaId) {  
+  console.log(mediaDetailId, mediaId);
   const stats = await this.aggregate([
     {
       $match: { mediaDetailId: mediaDetailId } // Selects all reviews that match the mediaDetailId passed into the function
