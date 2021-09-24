@@ -14,6 +14,14 @@ const userSchema = new mongoose.Schema({
 
 userSchema.plugin(uniqueValidator)
 
+userSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    // the passwordHash should not be revealed
+    delete returnedObject.passwordHash
+  }
+})
+
+
 const User = mongoose.model('User', userSchema)
 
 module.exports = User
