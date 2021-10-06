@@ -10,7 +10,7 @@ profileRouter.get('/:id', async (req, res) => {
 
 profileRouter.route('/:id/watchlist')
   .get(async (req, res) => {
-    const watchlist = await Profile.findById(req.params.id).populate('watchlist.media_id')
+    const watchlist = await Profile.findById(req.params.id).populate('watchlist.media')
     console.log(watchlist);
     res.json(watchlist) 
   })
@@ -27,6 +27,7 @@ profileRouter.route('/:id/watchlist')
 
     profile.watchlist.push({
       media_id: media_id,
+      media: media_id,
       date_added: date_added
     })
 
