@@ -57,13 +57,12 @@ rottenReviewRouter.route('/:mediaDetailId/:reviewId')
 
     const mediaDetail = await MediaDetail.findById(mediaDetailId)
     const mediaDetailReview = mediaDetail.rottenReviews.id(reviewId)
-    console.log('mediaDetailReview', mediaDetailReview);
-    console.log(body)
+
     mediaDetailReview.score = body.score
     mediaDetailReview.review = body.review
     
     const result = await mediaDetail.save()
-    console.log(result);
+
     await RottenReviews.findByIdAndUpdate(reviewId, body)
 
     res.status(201).json(result)

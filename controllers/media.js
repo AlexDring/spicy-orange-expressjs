@@ -58,7 +58,7 @@ mediaRouter.route('/')
       Metascore: body.Metascore,
       imdbRating: body.imdbRating,
       Type: body.Type,
-      dateAdded: body.dateAdded,
+      date_added: body.date_added,
       user: decodedToken.username,
       mediaDetail: savedMediaDetail._id
     })
@@ -78,7 +78,6 @@ mediaRouter.route('/:id')
 
   mediaRouter.delete('/:media_id/:mediaDetail_id', async (req, res) => {
     const { media_id, mediaDetail_id } = req.params
-    console.log(media_id, mediaDetail_id);
 
     const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
@@ -107,7 +106,7 @@ mediaRouter.route('/:id')
 
   mediaRouter.route('/:mediaDetailId/review')
   .post(async (req, res) => {
-    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster } = req.body
+    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster, date_added } = req.body
 
     // const reviewedMedia = await Media.findById(req.params.mediaId)
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
@@ -125,7 +124,8 @@ mediaRouter.route('/:id')
       title: title,
       poster: poster,
       score: score,
-      review: review
+      review: review,
+      date_added: date_added
     })
 
     reviewedMediaDetail.rottenReviews.push(newReview)

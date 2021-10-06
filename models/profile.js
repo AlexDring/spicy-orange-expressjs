@@ -13,7 +13,9 @@ const profileSchema = new mongoose.Schema({
     Language: String,
   }],
   watchlist: [{
-    media_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    media_id: String,
+    profile_id: String,
+    media: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     date_added: Date,
   }],
   watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }]
