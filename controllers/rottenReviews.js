@@ -1,11 +1,22 @@
 const rottenReviewRouter = require('express').Router()
 const RottenReviews = require('../models/rottenReview')
 const MediaDetail = require('../models/mediaDetail')
-const rottenReview = require('../models/rottenReview')
 
 rottenReviewRouter.get('/', async (req, res) => {
-  const result = await RottenReviews.find({})
-  res.json(result)
+  const page = parseInt(req.query.page) || 0;
+  // const limit = parseInt(req.query.limit) || 3;
+  
+  const response = await RottenReviews.find({})
+    .sort('-dateAdded')
+    .skip(page * 5)
+    .limit(15)
+
+  const count = await RottenReviews.countDocuments({})
+
+  res.json({
+    reviews: response,
+    totalReviews: count
+  })
 })
 
 rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - makes more sense being in rotten review router?

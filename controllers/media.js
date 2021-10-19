@@ -8,15 +8,20 @@ const jwt = require('jsonwebtoken')
 
 mediaRouter.route('/')
   .get(async (req, res) => {
-    const page = parseInt(req.query.page) || 0; //for next page pass 1 here
-    const limit = parseInt(req.query.limit) || 3;
+    const page = parseInt(req.query.page) || 0;
+    // const limit = parseInt(req.query.limit) || 3;
     const response = await Media
     .find({})
     .sort('-dateAdded')
-    .skip(page * limit)
-    .limit(limit)
+    .skip(page * 5)
+    .limit(15)
 
-    res.json(response)
+    const count = await Media.countDocuments({})
+
+    res.json({
+      recommendations: response,
+      totalRecommendations: count
+    })
   })
   .post(async (req, res) => {
     const body = req.body
