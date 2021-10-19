@@ -10,6 +10,7 @@ const rottenReviewSchema = new mongoose.Schema({
   poster: String,
   score: Number,
   review: String,
+  dataAdded: String
 })
 
 // Below is a static method that gets the called by the .post/.pre middleware below, each time a review is posted, edited, deleted. It's created as a static method because the aggregate function needs to be called on the model.
