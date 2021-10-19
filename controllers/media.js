@@ -8,7 +8,13 @@ const jwt = require('jsonwebtoken')
 
 mediaRouter.route('/')
   .get(async (req, res) => {
-    const response = await Media.find({})
+    const page = parseInt(req.query.page) || 0; //for next page pass 1 here
+    const limit = parseInt(req.query.limit) || 3;
+    const response = await Media
+    .find({})
+    .sort('-dateAdded')
+    .skip(page * limit)
+    .limit(limit)
 
     res.json(response)
   })
@@ -58,7 +64,7 @@ mediaRouter.route('/')
       Metascore: body.Metascore,
       imdbRating: body.imdbRating,
       Type: body.Type,
-      date_added: body.date_added,
+      dateAdded: body.date_added,
       user: decodedToken.username,
       mediaDetail: savedMediaDetail._id
     })
