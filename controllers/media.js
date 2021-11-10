@@ -8,15 +8,18 @@ const jwt = require('jsonwebtoken')
 
 mediaRouter.route('/')
   .get(async (req, res) => {
+    console.log(req.query);
     const page = parseInt(req.query.page) || 0;
     // const limit = parseInt(req.query.limit) || 3;
-    const response = await Media
-    .find({})
-    .sort('-dateAdded')
-    .skip(page * 5)
-    .limit(15)
+    const search = req.query.title === 'all' ? {} : { Title: { "$regex": req.query.title, "$options": "i" } }
 
-    const count = await Media.countDocuments({})
+    const response = await Media
+    .find(search)
+    .sort('-dateAdded')
+    .skip(page * 12)
+    .limit(12)
+
+    const count = await Media.countDocuments(search)
 
     res.json({
       recommendations: response,
@@ -25,7 +28,6 @@ mediaRouter.route('/')
   })
   .post(async (req, res) => {
     const body = req.body
-    console.log(body);
     if(!req.token) {
       return res.status(401).json({ error: 'token missing' })
     }

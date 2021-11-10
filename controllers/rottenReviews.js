@@ -7,12 +7,12 @@ rottenReviewRouter.get('/', async (req, res) => {
   // const limit = parseInt(req.query.limit) || 3;
   
   const response = await RottenReviews.find({})
-    .sort('-dateAdded')
-    .skip(page * 5)
-    .limit(15)
+    .sort('-updatedOn')
+    .skip(page * 12)
+    .limit(12)
 
   const count = await RottenReviews.countDocuments({})
-
+  console.log(count)
   res.json({
     reviews: response,
     totalReviews: count
@@ -21,7 +21,8 @@ rottenReviewRouter.get('/', async (req, res) => {
 
 rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - makes more sense being in rotten review router?
   .post(async (req, res) => {
-    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster } = req.body
+    console.log(req.body);
+    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster, updatedOn } = req.body
 
     // const reviewedMedia = await Media.findById(req.params.mediaId)
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
@@ -39,7 +40,8 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
       title: title,
       poster: poster,
       score: score,
-      review: review
+      review: review,
+      updatedOn: updatedOn
     })
 
     reviewedMediaDetail.rottenReviews.push(newReview)
@@ -71,6 +73,7 @@ rottenReviewRouter.route('/:mediaDetailId/:reviewId')
 
     mediaDetailReview.score = body.score
     mediaDetailReview.review = body.review
+    mediaDetailReview.updatedOn = body.updatedOn
     
     const result = await mediaDetail.save()
 
