@@ -4,17 +4,30 @@ const MediaDetail = require('../models/mediaDetail')
 const User = require('../models/user')
 const Review = require('../models/rottenReview')
 const jwt = require('jsonwebtoken')
-const { response } = require('express')
+// const { response } = require('express')
 
 mediaRouter.route('/')
   .get(async (req, res) => {
-    const response = await Media.find({})
+    console.log(req.query);
+    const page = parseInt(req.query.page) || 0;
+    // const limit = parseInt(req.query.limit) || 3;
+    const search = req.query.title === 'all' ? {} : { Title: { "$regex": req.query.title, "$options": "i" } }
 
-    res.json(response)
+    const response = await Media
+    .find(search)
+    .sort('-dateAdded')
+    .skip(page * 12)
+    .limit(12)
+
+    const count = await Media.countDocuments(search)
+
+    res.json({
+      recommendations: response,
+      totalRecommendations: count
+    })
   })
   .post(async (req, res) => {
     const body = req.body
-    
     if(!req.token) {
       return res.status(401).json({ error: 'token missing' })
     }
@@ -24,6 +37,13 @@ mediaRouter.route('/')
       decodedToken = await jwt.verify(req.token, process.env.SECRET)
     } catch(error) {
       return res.status(401).json({ error: 'token invalid' })
+    }
+
+    console.log('decodedToken', decodedToken);
+    const mediaExists = await MediaDetail.exists({ imdbID: body.imdbID })
+
+    if(mediaExists) {
+      return res.status(409).json({ error: 'This recommendation has already been added. Use the search on the Recommendations page to find.' })
     }
 
     const savedMediaDetail = new MediaDetail({
@@ -58,10 +78,11 @@ mediaRouter.route('/')
       Metascore: body.Metascore,
       imdbRating: body.imdbRating,
       Type: body.Type,
-      dateAdded: body.dateAdded,
+      dateAdded: body.date_added,
       user: decodedToken.username,
       mediaDetail: savedMediaDetail._id
     })
+
 
     await savedMediaDetail.save()
     await savedMedia.save()
@@ -75,8 +96,9 @@ mediaRouter.route('/:id')
 
     res.json(response)
   })
-  .delete(async (req, res) => {
-    const { mediaId, mediaDetailId } = req.body
+
+  mediaRouter.delete('/:media_id/:mediaDetail_id', async (req, res) => {
+    const { media_id, mediaDetail_id } = req.params
 
     const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
@@ -85,15 +107,15 @@ mediaRouter.route('/:id')
     }
 
     const user = await User.findById(decodedToken.id)
-    const media = await Media.findById(mediaId)
-    const mediaDetail = await MediaDetail.findById(mediaDetailId)
-
+    const media = await Media.findById(media_id)
+    const mediaDetail = await MediaDetail.findById(mediaDetail_id)
+    
     if(user._id.toString() !== mediaDetail.userId) {
-      return res.status(401).json({ error: 'only the user who added media can delete it' })
+      return res.status(400).json({ error: 'only the user who added the recommendation can delete it' })
     }
 
     if(mediaDetail.rottenReviews.length > 0) {
-      return res.status(401).json({ error: 'media with rotten reviews can\'t be deleted' })
+      return res.status(400).json({ error: 'Recommendations with rotten reviews can\'t be deleted' })
     }
 
     await media.remove()
@@ -104,10 +126,11 @@ mediaRouter.route('/:id')
 
   mediaRouter.route('/:mediaDetailId/review')
   .post(async (req, res) => {
-    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster } = req.body
-    console.log(req.body);
+    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster, date_added } = req.body
+
     // const reviewedMedia = await Media.findById(req.params.mediaId)
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+    // console.log(reviewedMediaDetail);
 
     if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
       return res.status(401).json({ error: 'only one review can be added per user' })
@@ -121,7 +144,8 @@ mediaRouter.route('/:id')
       title: title,
       poster: poster,
       score: score,
-      review: review
+      review: review,
+      date_added: date_added
     })
 
     reviewedMediaDetail.rottenReviews.push(newReview)
@@ -136,7 +160,6 @@ mediaRouter.route('/:id')
     console.log(req.body)
 
     const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
-    // console.log(mediaDetail);
 
     await Review.findByIdAndUpdate(reviewId, {
       score: score,
