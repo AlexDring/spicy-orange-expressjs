@@ -5,7 +5,7 @@ const Profile = require('../models/profile')
 profileRouter.get('/:id', async (req, res) => {
   const profile = await Profile.findById(req.params.id)
   console.log(profile);
-    res.json(profile)
+  res.json(profile)
 })
 
 profileRouter.route('/:id/watchlist')
@@ -53,6 +53,7 @@ profileRouter.delete('/:id/watchlist/:watchlistId',
     
     res.status(204).end()
   })
+  
 profileRouter.route('/:id/watched')
   .post(async (req, res) => {
     const body = req.body

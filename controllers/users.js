@@ -41,6 +41,7 @@ usersRouter.route('/:id')
     const { avatar } = req.body
 
     const updateUser = await User.findById(req.params.id)
+
     updateUser.avatar = avatar
     const savedUser = await updateUser.save()
 

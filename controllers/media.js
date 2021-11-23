@@ -39,6 +39,13 @@ mediaRouter.route('/')
       return res.status(401).json({ error: 'token invalid' })
     }
 
+    console.log('decodedToken', decodedToken);
+    const mediaExists = await MediaDetail.exists({ imdbID: body.imdbID })
+
+    if(mediaExists) {
+      return res.status(409).json({ error: 'This recommendation has already been added. Use the search on the Recommendations page to find.' })
+    }
+
     const savedMediaDetail = new MediaDetail({
       Actors: body.Actors,
       Awards: body.Awards,
@@ -76,6 +83,7 @@ mediaRouter.route('/')
       mediaDetail: savedMediaDetail._id
     })
 
+
     await savedMediaDetail.save()
     await savedMedia.save()
 
@@ -102,13 +110,12 @@ mediaRouter.route('/:id')
     const media = await Media.findById(media_id)
     const mediaDetail = await MediaDetail.findById(mediaDetail_id)
     
-    console.log(user, mediaDetail)
     if(user._id.toString() !== mediaDetail.userId) {
       return res.status(400).json({ error: 'only the user who added the recommendation can delete it' })
     }
 
     if(mediaDetail.rottenReviews.length > 0) {
-      return res.status(400).json({ error: 'media with rotten reviews can\'t be deleted' })
+      return res.status(400).json({ error: 'Recommendations with rotten reviews can\'t be deleted' })
     }
 
     await media.remove()
