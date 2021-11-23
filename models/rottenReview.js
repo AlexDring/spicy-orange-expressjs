@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { findByIdAndUpdate } = require('../models/media');
 const Media = require('../models/media')
 
 const rottenReviewSchema = new mongoose.Schema({
@@ -11,10 +10,12 @@ const rottenReviewSchema = new mongoose.Schema({
   poster: String,
   score: Number,
   review: String,
+  updatedOn: String
 })
 
 // Below is a static method that gets the called by the .post/.pre middleware below, each time a review is posted, edited, deleted. It's created as a static method because the aggregate function needs to be called on the model.
 rottenReviewSchema.statics.calcAverageRatings = async function (mediaDetailId, mediaId) {  
+  console.log(mediaDetailId, mediaId);
   const stats = await this.aggregate([
     {
       $match: { mediaDetailId: mediaDetailId } // Selects all reviews that match the mediaDetailId passed into the function
@@ -27,7 +28,7 @@ rottenReviewSchema.statics.calcAverageRatings = async function (mediaDetailId, m
       }
     }
   ])
-  console.log(stats);
+
   if(stats.length > 0) {
     await Media.findByIdAndUpdate(mediaId, { // This then gets the relevant media document and updates the rottenCount and rottenAverage with the returned calculations
       rottenCount: stats[0].nReviews,
@@ -53,7 +54,7 @@ rottenReviewSchema.post('save', function() { // This calls the above function wh
 rottenReviewSchema.pre(/^findOneAnd/, async function(next) { // regex findOneAnd matches with the edit/delete findByIdAndDelete/findByIdAndUpdate which are shorthand for findOneAnd... . It gets next keyword as it's pre middleware.
   this.r = await this.findOne() // this.findOne gives us the document currently being processed. To pass it onto the middleware below.
   // because this is .pre, it gives us the document before changes have been made. We need to use this.r to attach it to the current query variable which gives us access to it in the .post middleware. object so that it can be used with the calcAverageRatings method after it's been written to the database.
-  console.log('this.r', this.r);
+
   next() // because this is pre middleware we need to call next()
 })
 

@@ -5,15 +5,15 @@ const bcrypt = require('bcrypt');
 
 loginRouter.post('/', async (req, res) => {
   const { username, password } = req.body
-
+  console.log(req.body)
   // Get user
   const user = await User.findOne({ username: username })
 
   const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash)
 
   if(!(user && passwordCorrect)) {
-    return res.status(401).send({
-      error: 'invalid password or username'
+    return res.status(400).json({
+      error: 'Invalid password or username. Please try again.'
     })
   }
 
@@ -29,8 +29,17 @@ loginRouter.post('/', async (req, res) => {
     username: user.username,
     name: user.name,
     avatar: user.avatar,
+    profile_id: user.profile_id,
     id: user._id,
   })
 })
+
+loginRouter.get('/me', async (req, res) => {
+  const decodedToken = jwt.verify(req.token, process.env.SECRET)
+
+  const user = await User.findById(decodedToken.id)
+  res.json(user)
+})
+
 
 module.exports = loginRouter
