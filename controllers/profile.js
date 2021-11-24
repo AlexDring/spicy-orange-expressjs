@@ -8,51 +8,51 @@ profileRouter.get('/:id', async (req, res) => {
   res.json(profile)
 })
 
-profileRouter.route('/:id/watchlist')
-  .get(async (req, res) => {
-    const watchlist = await Profile.findById(req.params.id).populate('watchlist.media')
+// profileRouter.route('/:id/watchlist')
+  // .get(async (req, res) => {
+  //   const watchlist = await Profile.findById(req.params.id).populate('watchlist.media')
 
-    res.json(watchlist) 
-  })
-  .post(async (req, res) => {
-    const { media_id, date_added } = req.body
+  //   res.json(watchlist) 
+  // })
+  // .post(async (req, res) => {
+  //   const { media_id, date_added } = req.body
 
-    try {
-      await jwt.verify(req.token, process.env.SECRET)
-    } catch(error) {
-      return res.status(401).json({ error: 'token invalid or missing' })
-    }
+  //   try {
+  //     await jwt.verify(req.token, process.env.SECRET)
+  //   } catch(error) {
+  //     return res.status(401).json({ error: 'token invalid or missing' })
+  //   }
 
-    const profile = await Profile.findById(req.params.id)
+  //   const profile = await Profile.findById(req.params.id)
 
-    profile.watchlist.push({
-      media_id: media_id,
-      media: media_id,
-      date_added: date_added
-    })
+  //   profile.watchlist.push({
+  //     media_id: media_id,
+  //     media: media_id,
+  //     date_added: date_added
+  //   })
 
-    const savedProfile = await profile.save()
+  //   const savedProfile = await profile.save()
     
-    res.status(201).json(savedProfile)
-  })
+  //   res.status(201).json(savedProfile)
+  // })
 
-profileRouter.delete('/:id/watchlist/:watchlistId', 
-  async (req, res) => {
-    try {
-      await jwt.verify(req.token, process.env.SECRET)
-    } catch(error) {
-      return res.status(401).json({ error: 'token invalid or missing' })
-    }
+// profileRouter.delete('/:id/watchlist/:watchlistId', 
+//   async (req, res) => {
+//     try {
+//       await jwt.verify(req.token, process.env.SECRET)
+//     } catch(error) {
+//       return res.status(401).json({ error: 'token invalid or missing' })
+//     }
     
-    console.log('HERERE');
-    const profile = await Profile.findById(req.params.id)
+//     console.log('HERERE');
+//     const profile = await Profile.findById(req.params.id)
 
-    profile.watchlist.remove(req.params.watchlistId)
+//     profile.watchlist.remove(req.params.watchlistId)
 
-    await profile.save()
+//     await profile.save()
     
-    res.status(204).end()
-  })
+//     res.status(204).end()
+//   })
   
 profileRouter.route('/:id/watched')
   .post(async (req, res) => {

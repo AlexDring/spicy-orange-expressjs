@@ -1,7 +1,7 @@
 const usersRouter = require('express').Router()
 // A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router. - http://expressjs.com/en/5x/api.html#router
 const bcrypt = require('bcrypt')
-const middleware = require('../utils/middleware')
+const { authenticateUser } = require('../utils/middleware')
 const User = require('../models/user')
 const Profile = require('../models/profile')
 
@@ -30,7 +30,7 @@ usersRouter.route('/')
 usersRouter.route('/:id')
   .get(async (req, res) => {
     const user = await User.findById(req.params.id)
-    console.log(user, 'user');
+
     res.json(user)
   })
   .put(async (req, res) => {
@@ -44,20 +44,40 @@ usersRouter.route('/:id')
     res.json(savedUser)
   })
 
+usersRouter.get('/:id/recommendations', async (req, res) => {
+  const user = await User.findById(req.params.id).populate('recommendations')
+  
+  res.json(user)
+})
+
 usersRouter.route('/:id/watchlist')
   .get(async (req, res) => {
-    const watchlist = await User.findById(req.params.id).populate('watchlist.media')
-
-    res.json(watchlist) 
+    const user = await User.findById(req.params.id).populate('watchlist.recommendation')
+    console.log(user);
+    res.json(user) 
   })
-  .post(middleware.authenticateUser, async (req, res) => {
-    const { media_id, date_added } = req.body
+  .post(authenticateUser, async (req, res) => {
+    const { recommendation, date_added } = req.body
     const user = await User.findById(req.user.id)
 
-    user.watchlist.push({ media_id, date_added })
+    user.watchlist.push({ recommendation, date_added })
 
     const savedUser = await user.save()
     res.status(201).json(savedUser)
   })
+
+usersRouter.delete('/:id/watchlist/:watchlistId', 
+  authenticateUser, async (req, res) => { 
+    const user = await User.findById(req.user.id)
+
+    user.watchlist.remove(req.params.watchlistId)
+
+    await user.save()
+    
+    res.status(204).end()
+  }
+)
+
+
   
 module.exports = usersRouter

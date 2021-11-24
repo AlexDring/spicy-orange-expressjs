@@ -4,6 +4,8 @@ const MediaDetail = require('../models/mediaDetail')
 const User = require('../models/user')
 const Review = require('../models/rottenReview')
 const jwt = require('jsonwebtoken')
+const { authenticateUser } = require('../utils/middleware')
+
 // const { response } = require('express')
 
 mediaRouter.route('/')
@@ -25,25 +27,28 @@ mediaRouter.route('/')
       totalRecommendations: count
     })
   })
-  .post(async (req, res) => {
+  .post(authenticateUser, async (req, res) => {
     const body = req.body
-    if(!req.token) {
-      return res.status(401).json({ error: 'token missing' })
-    }
+    // if(!req.token) {
+    //   return res.status(401).json({ error: 'token missing' })
+    // }
 
-    let decodedToken
-    try {
-      decodedToken = await jwt.verify(req.token, process.env.SECRET)
-    } catch(error) {
-      return res.status(401).json({ error: 'token invalid' })
-    }
+    // let decodedToken
+    // try {
+    //   decodedToken = await jwt.verify(req.token, process.env.SECRET)
+    // } catch(error) {
+    //   return res.status(401).json({ error: 'token invalid' })
+    // }
 
-    console.log('decodedToken', decodedToken);
+    // console.log('decodedToken', decodedToken);
     const mediaExists = await MediaDetail.exists({ imdbID: body.imdbID })
 
     if(mediaExists) {
       return res.status(409).json({ error: 'This recommendation has already been added. Use the search on the Recommendations page to find.' })
     }
+
+    const user = await User.findById(req.user.id)
+    console.log({user});
 
     const savedMediaDetail = new MediaDetail({
       Actors: body.Actors,
@@ -60,9 +65,8 @@ mediaRouter.route('/')
       Writer: body.Writer,
       imdbID: body.imdbID,
       imdbVotes: body.imdbVotes,
-      Response: body.Response,
       rottenReviews: body.rottenGas,
-      userId: decodedToken.id
+      userId: user._id
     })
 
     const savedMedia = new Media({
@@ -78,13 +82,15 @@ mediaRouter.route('/')
       imdbRating: body.imdbRating,
       Type: body.Type,
       dateAdded: body.date_added,
-      user: decodedToken.username,
+      user: user.username,
       mediaDetail: savedMediaDetail._id
     })
 
+    user.recommendations.push(savedMedia._id)
 
     await savedMediaDetail.save()
     await savedMedia.save()
+    await user.save()
 
     res.status(201).json(savedMedia)
   })
@@ -96,32 +102,31 @@ mediaRouter.route('/:id')
     res.json(response)
   })
 
-  mediaRouter.delete('/:media_id/:mediaDetail_id', async (req, res) => {
-    const { media_id, mediaDetail_id } = req.params
+  mediaRouter.delete('/:media_id/:mediaDetail_id', 
+    authenticateUser, async (req, res) => {
+      const { media_id, mediaDetail_id } = req.params
 
-    const decodedToken = jwt.verify(req.token, process.env.SECRET)
+      const user = await User.findById(req.user.id)
+      const media = await Media.findById(media_id)
+      const mediaDetail = await MediaDetail.findById(mediaDetail_id)
+      
+      if(user._id.toString() !== mediaDetail.userId) {
+        return res.status(400).json({ error: 'only the user who added the recommendation can delete it' })
+      }
 
-    if (!req.token || !decodedToken.id) {
-      return response.status(401).json({ error: 'token missing or invalid' })
+      if(mediaDetail.rottenReviews.length > 0) {
+        return res.status(400).json({ error: 'Recommendations with rotten reviews can\'t be deleted' })
+      }
+
+      user.recommendations.splice(media_id)
+      
+      await user.save()
+      await media.remove()
+      await mediaDetail.remove()
+
+      res.status(204).end()
     }
-
-    const user = await User.findById(decodedToken.id)
-    const media = await Media.findById(media_id)
-    const mediaDetail = await MediaDetail.findById(mediaDetail_id)
-    
-    if(user._id.toString() !== mediaDetail.userId) {
-      return res.status(400).json({ error: 'only the user who added the recommendation can delete it' })
-    }
-
-    if(mediaDetail.rottenReviews.length > 0) {
-      return res.status(400).json({ error: 'Recommendations with rotten reviews can\'t be deleted' })
-    }
-
-    await media.remove()
-    await mediaDetail.remove()
-
-    res.status(204).end()
-  })
+  )
 
   mediaRouter.route('/:mediaDetailId/review')
   .post(async (req, res) => {
