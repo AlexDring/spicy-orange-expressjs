@@ -21,9 +21,9 @@ const userSchema = new mongoose.Schema({
     Genre: String,
     Language: String,
   }],
+  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
   watchlist: [{
-    media_id: String,
-    media: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    recommendation: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     date_added: Date,
   }],
   watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }]

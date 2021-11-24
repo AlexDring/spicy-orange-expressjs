@@ -38,7 +38,7 @@ loginRouter.get('/me', async (req, res) => {
   const decodedToken = jwt.verify(req.token, process.env.SECRET)
 
   const user = await User.findById(decodedToken.id)
-  console.log({user});
+
   res.json(user)
 })
 
