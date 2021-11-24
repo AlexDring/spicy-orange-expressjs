@@ -4,19 +4,19 @@ const Profile = require('../models/profile')
 
 profileRouter.get('/:id', async (req, res) => {
   const profile = await Profile.findById(req.params.id)
-  console.log(profile);
+
   res.json(profile)
 })
 
 profileRouter.route('/:id/watchlist')
   .get(async (req, res) => {
     const watchlist = await Profile.findById(req.params.id).populate('watchlist.media')
-    console.log(watchlist);
+
     res.json(watchlist) 
   })
   .post(async (req, res) => {
     const { media_id, date_added } = req.body
-    console.log(req.body, 'here')
+
     try {
       await jwt.verify(req.token, process.env.SECRET)
     } catch(error) {

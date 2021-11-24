@@ -8,7 +8,6 @@ const jwt = require('jsonwebtoken')
 
 mediaRouter.route('/')
   .get(async (req, res) => {
-    console.log(req.query);
     const page = parseInt(req.query.page) || 0;
     // const limit = parseInt(req.query.limit) || 3;
     const search = req.query.title === 'all' ? {} : { Title: { "$regex": req.query.title, "$options": "i" } }
@@ -157,7 +156,6 @@ mediaRouter.route('/:id')
   })
   .put(async (req, res) => {
     const { reviewId, score, review } = req.body
-    console.log(req.body)
 
     const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
 
