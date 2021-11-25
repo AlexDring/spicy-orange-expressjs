@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt')
 const { authenticateUser } = require('../utils/middleware')
 const User = require('../models/user')
 const MediaDetail = require('../models/mediaDetail')
-const Profile = require('../models/profile')
 
 usersRouter.route('/')
   .post(async (req, res) => {
@@ -13,17 +12,13 @@ usersRouter.route('/')
     const saltRounds = 10
     const salt = bcrypt.genSaltSync(saltRounds)
     const passwordHash = bcrypt.hashSync(password, salt)
-
-    const profile = new Profile()
     
     const user = new User ({
       username: username,
       name: name,
       passwordHash: passwordHash,
-      profile_id: profile._id
     })
 
-    await profile.save()
     const savedUser = await user.save()
     res.json(savedUser)
   })
@@ -86,27 +81,27 @@ usersRouter.delete('/:id/watchlist/:watchlistId',
   }
 )
 
-usersRouter.route('/:id/watched')
-  .post(authenticateUser, async (req, res) => {
-    const body = req.body
-    const user = await User.findById(req.params.id)
+// usersRouter.route('/:id/watched')
+//   .post(authenticateUser, async (req, res) => {
+//     const body = req.body
+//     const user = await User.findById(req.params.id)
 
-    user.watched.push(body.media_id)
+//     user.watched.push(body.media_id)
 
-    const savedUser = await user.save()
+//     const savedUser = await user.save()
     
-    res.status(201).json(savedUser)
-  })
-  .delete(authenticateUser, async (req, res) => {
-    const body = req.body
+//     res.status(201).json(savedUser)
+//   })
+//   .delete(authenticateUser, async (req, res) => {
+//     const body = req.body
 
-    const user = await User.findById(req.user.id)
+//     const user = await User.findById(req.user.id)
 
-    user.watched.remove(body.media_id)
+//     user.watched.remove(body.media_id)
 
-    await user.save()
+//     await user.save()
     
-    res.status(204).end()
-  })
+//     res.status(204).end()
+//   })
   
 module.exports = usersRouter

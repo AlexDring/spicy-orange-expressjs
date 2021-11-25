@@ -1,5 +1,6 @@
 const loginRouter = require('express').Router()
 const User = require('../models/user')
+const { authenticateUser } = require('../utils/middleware')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -29,15 +30,12 @@ loginRouter.post('/', async (req, res) => {
     username: user.username,
     name: user.name,
     avatar: user.avatar,
-    profile_id: user.profile_id,
     id: user._id,
   })
 })
 
-loginRouter.get('/me', async (req, res) => {
-  const decodedToken = jwt.verify(req.token, process.env.SECRET)
-
-  const user = await User.findById(decodedToken.id)
+loginRouter.get('/me', authenticateUser, async (req, res) => {
+  const user = await User.findById(req.user.id)
 
   res.json(user)
 })

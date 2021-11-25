@@ -9,8 +9,6 @@ const userSchema = new mongoose.Schema({
   name: String,
   passwordHash: String,
   avatar: String,
-  profile_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile' },
-  
   recommendations: [{
     Poster: String,
     Title: String,
