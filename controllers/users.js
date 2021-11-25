@@ -3,6 +3,7 @@ const usersRouter = require('express').Router()
 const bcrypt = require('bcrypt')
 const { authenticateUser } = require('../utils/middleware')
 const User = require('../models/user')
+const MediaDetail = require('../models/mediaDetail')
 const Profile = require('../models/profile')
 
 usersRouter.route('/')
@@ -53,31 +54,59 @@ usersRouter.get('/:id/recommendations', async (req, res) => {
 usersRouter.route('/:id/watchlist')
   .get(async (req, res) => {
     const user = await User.findById(req.params.id).populate('watchlist.recommendation')
-    console.log(user);
+
     res.json(user) 
   })
   .post(authenticateUser, async (req, res) => {
     const { recommendation, date_added } = req.body
     const user = await User.findById(req.user.id)
-
+    const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
+    
     user.watchlist.push({ recommendation, date_added })
+    recommendationDetail.inWatchlist.push(user._id)
 
+    await recommendationDetail.save()
     const savedUser = await user.save()
+
     res.status(201).json(savedUser)
   })
 
 usersRouter.delete('/:id/watchlist/:watchlistId', 
   authenticateUser, async (req, res) => { 
     const user = await User.findById(req.user.id)
+    const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
 
     user.watchlist.remove(req.params.watchlistId)
+    recommendationDetail.inWatchlist.splice(user._id)
 
+    await recommendationDetail.save()
     await user.save()
     
     res.status(204).end()
   }
 )
 
+usersRouter.route('/:id/watched')
+  .post(authenticateUser, async (req, res) => {
+    const body = req.body
+    const user = await User.findById(req.params.id)
 
+    user.watched.push(body.media_id)
+
+    const savedUser = await user.save()
+    
+    res.status(201).json(savedUser)
+  })
+  .delete(authenticateUser, async (req, res) => {
+    const body = req.body
+
+    const user = await User.findById(req.user.id)
+
+    user.watched.remove(body.media_id)
+
+    await user.save()
+    
+    res.status(204).end()
+  })
   
 module.exports = usersRouter

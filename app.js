@@ -33,7 +33,6 @@ app.use(express.json())
 app.use(middleware.tokenExtractor)
 
 app.use('/api/users', usersRouter)
-app.use('/api/profile', profileRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/omdb', omdbRouter)
 app.use('/api/media', mediaRouter)
