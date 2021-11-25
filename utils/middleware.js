@@ -13,14 +13,10 @@ const authenticateUser = async (req, res, next) => {
   const authHeader = req.get('authorization')
   if(authHeader) {
     const token = authHeader.substring(7)
-    console.log({token});
     try {
-      console.log('heree');
       const user = await jwt.verify(token, process.env.SECRET)
-      console.log({user});
       req.user = user
     } catch(error) {
-      console.log(error);
       return res.status(401).json({ error: 'token invalid or missing' })
     }
   }

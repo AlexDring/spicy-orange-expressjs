@@ -23,6 +23,7 @@ const mediaDetailSchema = new mongoose.Schema({
   Website: String,
   Response: String,
   dateAdded: String,
+  inWatchlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   rottenReviews: [{ score: Number, user: String, review: String }],
   userId: String
 })

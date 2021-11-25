@@ -109,18 +109,22 @@ mediaRouter.route('/:id')
       const user = await User.findById(req.user.id)
       const media = await Media.findById(media_id)
       const mediaDetail = await MediaDetail.findById(mediaDetail_id)
-      
+
       if(user._id.toString() !== mediaDetail.userId) {
-        return res.status(400).json({ error: 'only the user who added the recommendation can delete it' })
+        return res.status(405).json({ error: 'only the user who added the recommendation can delete it' })
       }
 
       if(mediaDetail.rottenReviews.length > 0) {
-        return res.status(400).json({ error: 'Recommendations with rotten reviews can\'t be deleted' })
+        return res.status(405).json({ error: `Recommendations that have rotten reviews can't be deleted.` })
+      }
+
+      if(mediaDetail.inWatchlist.length > 0) {
+        return res.status(405).json({ error: `Can't delete this recommendation, its been added to someones watchlist.` })
       }
 
       user.recommendations.splice(media_id)
-      
       await user.save()
+      
       await media.remove()
       await mediaDetail.remove()
 

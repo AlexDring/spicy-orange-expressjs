@@ -29,7 +29,7 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
 
     if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
-      return res.status(400).json({ error: 'only one review can be added per user' })
+      return res.status(405).json({ error: 'only one review can be added per user' })
     }
 
     const user = await User.findById(req.user.id)
@@ -66,9 +66,7 @@ rottenReviewRouter.route('/:mediaDetailId/:reviewId')
     mediaDetail.rottenReviews.id(reviewId).remove()
     
     const user = await User.findById(req.user.id)
-    console.log(reviewId, user);
     user.reviews.splice(reviewId)
-    console.log(user);
 
     await mediaDetail.save()
     await user.save()
