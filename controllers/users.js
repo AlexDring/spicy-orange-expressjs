@@ -50,7 +50,11 @@ usersRouter.route('/:id/watchlist')
   .get(async (req, res) => {
     const user = await User.findById(req.params.id).populate('watchlist.recommendation')
 
-    res.json(user) 
+    user.watchlist.sort(function(x, y) { // Having to sort this way as using .sort on populate causes bugs when removing from watchlist.
+      return y.date_added - x.date_added;
+    })
+  
+    res.json(user.watchlist) 
   })
   .post(authenticateUser, async (req, res) => {
     const { recommendation, date_added } = req.body
@@ -71,9 +75,11 @@ usersRouter.delete('/:id/watchlist/:watchlistId',
     const user = await User.findById(req.user.id)
     const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
 
+    console.log(req.params);
     user.watchlist.remove(req.params.watchlistId)
     recommendationDetail.inWatchlist.splice(user._id)
-
+    console.log(user.watchlist);
+    
     await recommendationDetail.save()
     await user.save()
     

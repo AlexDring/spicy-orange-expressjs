@@ -13,7 +13,7 @@ const rottenReviewRouter = require('./controllers/rottenReviews')
 
 const middleware = require('./utils/middleware')
 const app = express()
-var morgan = require('morgan');
+const morgan = require('morgan');
 
 mongoose.set('useCreateIndex', true)
 
