@@ -41,9 +41,15 @@ usersRouter.route('/:id')
   })
 
 usersRouter.get('/:id/recommendations', async (req, res) => {
-  const user = await User.findById(req.params.id).populate('recommendations')
+  const user = await User.findById(req.params.id).populate({ path: 'recommendations'})
   
-  res.json(user)
+  res.json(user.recommendations)
+})
+
+usersRouter.get('/:id/reviews', async (req, res) => {
+  const user = await User.findById(req.params.id).populate({ path: 'reviews'})
+  console.log(user);
+  res.json(user.reviews)
 })
 
 usersRouter.route('/:id/watchlist')

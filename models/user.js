@@ -9,16 +9,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   passwordHash: String,
   avatar: String,
-  recommendations: [{
-    Poster: String,
-    Title: String,
-    Type: String,
-    Year: String,
-    Runtime: String,
-    Director: String,
-    Genre: String,
-    Language: String,
-  }],
+  recommendations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }],
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
   watchlist: [{
     recommendation: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
