@@ -61,12 +61,15 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
 rottenReviewRouter.route('/:mediaDetailId/:reviewId')
   .delete(authenticateUser, async (req, res) => {
     const { mediaDetailId, reviewId } = req.params
-
+    console.log({reviewId});
     const mediaDetail = await MediaDetail.findById(mediaDetailId)
     mediaDetail.rottenReviews.id(reviewId).remove()
     
-    const user = await User.findById(req.user.id)
-    user.reviews.splice(reviewId)
+    const user = await User.findByIdAndUpdate(req.user.id, {
+      $pull: {
+        review: {_id: reviewId}
+      }
+    })
 
     await mediaDetail.save()
     await user.save()

@@ -35,7 +35,6 @@ mediaRouter.route('/')
     }
 
     const user = await User.findById(req.user.id)
-    console.log({user});
 
     const savedMediaDetail = new MediaDetail({
       Actors: body.Actors,
@@ -73,10 +72,10 @@ mediaRouter.route('/')
       mediaDetail: savedMediaDetail._id
     })
 
-    user.recommendations.push(savedMedia._id)
-
     await savedMediaDetail.save()
-    await savedMedia.save()
+    const media = await savedMedia.save()
+
+    user.recommendations.push(media._id)
     await user.save()
 
     res.status(201).json(savedMedia)
@@ -119,69 +118,69 @@ mediaRouter.route('/:id')
     }
   )
 
-  mediaRouter.route('/:mediaDetailId/review')
-  .post(authenticateUser, async (req, res) => {
-    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster, date_added } = req.body
+  // mediaRouter.route('/:mediaDetailId/review')
+  // .post(authenticateUser, async (req, res) => {
+  //   const { mediaDetailId, mediaId, user, score, review, avatar, title, poster, date_added } = req.body
 
-    const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+  //   const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
 
-    if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
-      return res.status(405).json({ error: 'only one review can be added per user' })
-    }
+  //   if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
+  //     return res.status(405).json({ error: 'only one review can be added per user' })
+  //   }
   
-    const newReview = new Review({
-      mediaDetailId: mediaDetailId,
-      mediaId: mediaId,
-      user: user,
-      avatar: avatar,
-      title: title,
-      poster: poster,
-      score: score,
-      review: review,
-      date_added: date_added
-    })
+  //   const newReview = new Review({
+  //     mediaDetailId: mediaDetailId,
+  //     mediaId: mediaId,
+  //     user: user,
+  //     avatar: avatar,
+  //     title: title,
+  //     poster: poster,
+  //     score: score,
+  //     review: review,
+  //     date_added: date_added
+  //   })
 
-    reviewedMediaDetail.rottenReviews.push(newReview)
+  //   reviewedMediaDetail.rottenReviews.push(newReview)
 
-    await newReview.save()
-    const result = await reviewedMediaDetail.save()
+  //   await newReview.save()
+  //   const result = await reviewedMediaDetail.save()
 
-    res.status(201).json(result)
-  })
-  .put(authenticateUser, async (req, res) => {
-    const { reviewId, score, review } = req.body
+  //   res.status(201).json(result)
+  // })
+  // .put(authenticateUser, async (req, res) => {
+  //   const { reviewId, score, review } = req.body
 
-    const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
+  //   const mediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
 
-    await Review.findByIdAndUpdate(reviewId, {
-      score: score,
-      review: review
-    }) 
+  //   await Review.findByIdAndUpdate(reviewId, {
+  //     score: score,
+  //     review: review
+  //   }) 
 
-    const updatedReview = {
-      score: score,
-      review: review
-    }
+  //   const updatedReview = {
+  //     score: score,
+  //     review: review
+  //   }
 
-    const oldReview = mediaDetail.rottenReviews.id(reviewId)
-    oldReview.set(updatedReview)
-    // Info on subdocument .id method and .set can be found here - https://stackoverflow.com/questions/40642154/use-mongoose-to-update-subdocument-in-array. Mongoose docs for .id are missing!!!
+  //   const oldReview = mediaDetail.rottenReviews.id(reviewId)
+  //   oldReview.set(updatedReview)
+  //   // Info on subdocument .id method and .set can be found here - https://stackoverflow.com/questions/40642154/use-mongoose-to-update-subdocument-in-array. Mongoose docs for .id are missing!!!
 
-    // await updateReview.save()
-    const result = await mediaDetail.save()
-    res.status(201).json(result)
-  })  
-  .delete(authenticateUser, async (req, res) => {
-    const { reviewId, mediaDetailId } = req.body
+  //   // await updateReview.save()
+  //   const result = await mediaDetail.save()
+  //   res.status(201).json(result)
+  // })  
+  // .delete(authenticateUser, async (req, res) => {
+  //   const { reviewId, mediaDetailId } = req.body
 
-    const mediaDetail = await MediaDetail.findById(mediaDetailId)
+  //   const mediaDetail = await MediaDetail.findById(mediaDetailId)
     
-    mediaDetail.rottenReviews.id(reviewId).remove()
+  //   mediaDetail.rottenReviews.id(reviewId).remove()
     
-    await Review.findByIdAndDelete(reviewId)
-    await mediaDetail.save()
+  //   await Review.findByIdAndDelete(reviewId)
+  //   await mediaDetail.save()
 
-    res.status(204).end()
-  })
+  //   res.status(204).end()
+  // })
 
 module.exports = mediaRouter
