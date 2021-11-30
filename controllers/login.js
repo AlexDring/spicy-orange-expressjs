@@ -19,22 +19,22 @@ loginRouter.post('/', async (req, res) => {
 
   const userForToken = {
     username: username,
-    id: user._id
+    _id: user._id
   }
 
-  const token = jwt.sign(userForToken, process.env.SECRET)
+  const token = jwt.sign(userForToken, process.env.SECRET, { expiresIn: '20m' })
 
   res.status(200).send({
     token,
     username: user.username,
     name: user.name,
     avatar: user.avatar,
-    id: user._id,
+    _id: user._id,
   })
 })
 
 loginRouter.get('/me', authenticateUser, async (req, res) => {
-  const user = await User.findById(req.user.id)
+  const user = await User.findById(req.user._id)
 
   res.json(user)
 })

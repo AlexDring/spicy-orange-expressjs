@@ -48,7 +48,7 @@ usersRouter.get('/:id/recommendations', async (req, res) => {
 
 usersRouter.get('/:id/reviews', async (req, res) => {
   const user = await User.findById(req.params.id).populate({ path: 'reviews'})
-  console.log(user);
+
   res.json(user.reviews)
 })
 
@@ -64,9 +64,9 @@ usersRouter.route('/:id/watchlist')
   })
   .post(authenticateUser, async (req, res) => {
     const { recommendation, date_added } = req.body
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.user._id)
     const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
-    
+
     user.watchlist.push({ recommendation, date_added })
     recommendationDetail.inWatchlist.push(user._id)
 
@@ -78,13 +78,11 @@ usersRouter.route('/:id/watchlist')
 
 usersRouter.delete('/:id/watchlist/:watchlistId', 
   authenticateUser, async (req, res) => { 
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.user._id)
     const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
 
-    console.log(req.params);
     user.watchlist.remove(req.params.watchlistId)
     recommendationDetail.inWatchlist.splice(user._id)
-    console.log(user.watchlist);
     
     await recommendationDetail.save()
     await user.save()
@@ -107,7 +105,7 @@ usersRouter.delete('/:id/watchlist/:watchlistId',
 //   .delete(authenticateUser, async (req, res) => {
 //     const body = req.body
 
-//     const user = await User.findById(req.user.id)
+//     const user = await User.findById(req.user._id)
 
 //     user.watched.remove(body.media_id)
 

@@ -16,6 +16,7 @@ const authenticateUser = async (req, res, next) => {
     try {
       const user = await jwt.verify(token, process.env.SECRET)
       req.user = user
+      console.log({user}, 'authenticateUser');
     } catch(error) {
       return res.status(401).json({ error: 'token invalid or missing' })
     }

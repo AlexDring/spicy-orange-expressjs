@@ -34,7 +34,7 @@ mediaRouter.route('/')
       return res.status(409).json({ error: 'This recommendation has already been added. Use the search on the Recommendations page to find.' })
     }
 
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.user._id)
 
     const savedMediaDetail = new MediaDetail({
       Actors: body.Actors,
@@ -92,11 +92,10 @@ mediaRouter.route('/:id')
     authenticateUser, async (req, res) => {
       const { media_id, mediaDetail_id } = req.params
 
-      const user = await User.findById(req.user.id)
       const media = await Media.findById(media_id)
       const mediaDetail = await MediaDetail.findById(mediaDetail_id)
 
-      if(user._id.toString() !== mediaDetail.userId) {
+      if(req.user._id !== mediaDetail.userId) {
         return res.status(405).json({ error: 'only the user who added the recommendation can delete it' })
       }
 
@@ -108,8 +107,11 @@ mediaRouter.route('/:id')
         return res.status(405).json({ error: `Can't delete this recommendation, its been added to someones watchlist.` })
       }
 
-      user.recommendations.splice(media_id)
-      await user.save()
+      await User.findByIdAndUpdate(req.user._id, {
+        $pull: {
+          recommendations: {_id: media_id}
+        }
+      })
 
       await media.remove()
       await mediaDetail.remove()
