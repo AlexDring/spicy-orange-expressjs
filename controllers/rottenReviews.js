@@ -32,7 +32,7 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
       return res.status(405).json({ error: 'only one review can be added per user' })
     }
 
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.user._id)
   
     const newReview = new RottenReviews({
       mediaDetailId,
@@ -65,7 +65,7 @@ rottenReviewRouter.route('/:mediaDetailId/:reviewId')
     const mediaDetail = await MediaDetail.findById(mediaDetailId)
     mediaDetail.rottenReviews.id(reviewId).remove()
     
-    const user = await User.findByIdAndUpdate(req.user.id, {
+    const user = await User.findByIdAndUpdate(req.user._id, {
       $pull: {
         review: {_id: reviewId}
       }
