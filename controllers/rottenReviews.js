@@ -22,9 +22,9 @@ rottenReviewRouter.get('/', async (req, res) => {
 })
 
 rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - makes more sense being in rotten review router?
-  .post(authenticateUser, async (req, res) => {
+  .post(async (req, res) => {
     console.log(req.body);
-    const { mediaDetailId, mediaId, score, review, avatar, title, poster, updatedOn } = req.body
+    const { user_id, mediaDetailId, mediaId, score, review, avatar, title, poster, updatedOn } = req.body
 
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
 
@@ -32,7 +32,7 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
       return res.status(405).json({ error: 'only one review can be added per user' })
     }
 
-    const user = await User.findById(req.user._id)
+    const user = await User.findById(user_id)
   
     const newReview = new RottenReviews({
       mediaDetailId,
@@ -59,20 +59,20 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
   })
 
 rottenReviewRouter.route('/:mediaDetailId/:reviewId')
-  .delete(authenticateUser, async (req, res) => {
-    const { mediaDetailId, reviewId } = req.params
+  .delete(async (req, res) => {
+    const { user_id, mediaDetailId, reviewId } = req.params
     console.log({reviewId});
     const mediaDetail = await MediaDetail.findById(mediaDetailId)
     mediaDetail.rottenReviews.id(reviewId).remove()
-    
-    const user = await User.findByIdAndUpdate(req.user._id, {
+    console.log(user_id);
+
+    await User.findByIdAndUpdate(user_id, {
       $pull: {
         review: {_id: reviewId}
       }
     })
-
+    
     await mediaDetail.save()
-    await user.save()
     await RottenReviews.findByIdAndDelete(reviewId)
 
     res.status(204).end()

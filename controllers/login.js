@@ -35,7 +35,7 @@ loginRouter.post('/', async (req, res) => {
 
 loginRouter.get('/me', authenticateUser, async (req, res) => {
   const user = await User.findById(req.user._id)
-
+  console.log('me', user);
   res.json(user)
 })
 

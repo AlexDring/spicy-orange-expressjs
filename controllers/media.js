@@ -2,10 +2,7 @@ const mediaRouter = require('express').Router()
 const Media = require('../models/media')
 const MediaDetail = require('../models/mediaDetail')
 const User = require('../models/user')
-const Review = require('../models/rottenReview')
 const { authenticateUser } = require('../utils/middleware')
-
-// const { response } = require('express')
 
 mediaRouter.route('/')
   .get(async (req, res) => {
@@ -26,7 +23,7 @@ mediaRouter.route('/')
       totalRecommendations: count
     })
   })
-  .post(authenticateUser, async (req, res) => {
+  .post(async (req, res) => {
     const body = req.body
     const mediaExists = await MediaDetail.exists({ imdbID: body.imdbID })
 
@@ -34,7 +31,7 @@ mediaRouter.route('/')
       return res.status(409).json({ error: 'This recommendation has already been added. Use the search on the Recommendations page to find.' })
     }
 
-    const user = await User.findById(req.user._id)
+    const user = await User.findById(body.user_id)
 
     const savedMediaDetail = new MediaDetail({
       Actors: body.Actors,
