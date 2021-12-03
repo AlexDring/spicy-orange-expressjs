@@ -1,7 +1,25 @@
+const jwt = require('jsonwebtoken')
+
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     request.token = authorization.substring(7)
+  }
+
+  next()
+}
+
+const authenticateUser = async (req, res, next) => {
+  const authHeader = req.get('authorization')
+  if(authHeader) {
+    const token = authHeader.substring(7)
+    try {
+      const user = await jwt.verify(token, process.env.SECRET)
+      req.user = user
+      console.log({user}, 'authenticateUser');
+    } catch(error) {
+      return res.status(401).json({ error: 'token invalid or missing' })
+    }
   }
 
   next()
@@ -27,4 +45,4 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-module.exports = { tokenExtractor, errorHandler, unknownEndpoint }
+module.exports = { tokenExtractor, authenticateUser, errorHandler, unknownEndpoint }
