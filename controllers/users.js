@@ -7,26 +7,32 @@ const MediaDetail = require('../models/mediaDetail')
 
 usersRouter.route('/')
   .post(async (req, res) => {
-    const { username, name, password } = req.body
-
-    const saltRounds = 10
-    const salt = bcrypt.genSaltSync(saltRounds)
-    const passwordHash = bcrypt.hashSync(password, salt)
+    console.log(req.body);
+    const { auth0_id, username, email } = req.body
+    console.log(username, email);
+    // const saltRounds = 10
+    // const salt = bcrypt.genSaltSync(saltRounds)
+    // const passwordHash = bcrypt.hashSync(password, salt)
     
     const user = new User ({
-      username: username,
-      name: name,
-      passwordHash: passwordHash,
+      auth0_id,
+      // _id,
+      username,
+      email,
+      // passwordHash: passwordHash,
     })
 
     const savedUser = await user.save()
+    console.log(savedUser);
     res.json(savedUser)
   })
 
 usersRouter.route('/:id')
   .get(async (req, res) => {
+    console.log(req.params.id);
+    // const user = await User.findById(req.params.id,)
     const user = await User.findById(req.params.id)
-
+    console.log(user);
     res.json(user)
   })
   .put(async (req, res) => {
@@ -59,13 +65,14 @@ usersRouter.route('/:id/watchlist')
     user.watchlist.sort(function(x, y) { // Having to sort this way as using .sort on populate causes bugs when removing from watchlist.
       return y.date_added - x.date_added;
     })
-  
+
     res.json(user.watchlist) 
   })
-  .post(authenticateUser, async (req, res) => {
+  .post(async (req, res) => {
     const { recommendation, date_added } = req.body
-    const user = await User.findById(req.user._id)
+    const user = await User.findById(req.params.id)
     const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
+    console.log(user, recommendationDetail);
 
     user.watchlist.push({ recommendation, date_added })
     recommendationDetail.inWatchlist.push(user._id)
@@ -73,12 +80,12 @@ usersRouter.route('/:id/watchlist')
     await recommendationDetail.save()
     const savedUser = await user.save()
 
-    res.status(201).json(savedUser)
+    res.status(201).json(savedUser.watchlist)
   })
 
 usersRouter.delete('/:id/watchlist/:watchlistId', 
-  authenticateUser, async (req, res) => { 
-    const user = await User.findById(req.user._id)
+  async (req, res) => { 
+    const user = await User.findById(req.params.id)
     const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
 
     user.watchlist.remove(req.params.watchlistId)
