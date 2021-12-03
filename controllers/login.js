@@ -1,12 +1,12 @@
 const loginRouter = require('express').Router()
 const User = require('../models/user')
+const { authenticateUser } = require('../utils/middleware')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 loginRouter.post('/', async (req, res) => {
   const { username, password } = req.body
-  console.log(req.body)
-  // Get user
+
   const user = await User.findOne({ username: username })
 
   const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash)
@@ -19,25 +19,23 @@ loginRouter.post('/', async (req, res) => {
 
   const userForToken = {
     username: username,
-    id: user._id
+    _id: user._id
   }
 
-  const token = jwt.sign(userForToken, process.env.SECRET)
+  const token = jwt.sign(userForToken, process.env.SECRET, { expiresIn: '20m' })
 
   res.status(200).send({
     token,
     username: user.username,
     name: user.name,
     avatar: user.avatar,
-    profile_id: user.profile_id,
-    id: user._id,
+    _id: user._id,
   })
 })
 
-loginRouter.get('/me', async (req, res) => {
-  const decodedToken = jwt.verify(req.token, process.env.SECRET)
-
-  const user = await User.findById(decodedToken.id)
+loginRouter.get('/me', authenticateUser, async (req, res) => {
+  const user = await User.findById(req.user._id)
+  console.log('me', user);
   res.json(user)
 })
 

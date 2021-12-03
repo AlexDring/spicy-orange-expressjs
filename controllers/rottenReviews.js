@@ -1,6 +1,8 @@
 const rottenReviewRouter = require('express').Router()
 const RottenReviews = require('../models/rottenReview')
 const MediaDetail = require('../models/mediaDetail')
+const User = require('../models/user')
+const { authenticateUser } = require('../utils/middleware')
 
 rottenReviewRouter.get('/', async (req, res) => {
   const page = parseInt(req.query.page) || 0;
@@ -22,30 +24,34 @@ rottenReviewRouter.get('/', async (req, res) => {
 rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - makes more sense being in rotten review router?
   .post(async (req, res) => {
     console.log(req.body);
-    const { mediaDetailId, mediaId, user, score, review, avatar, title, poster, updatedOn } = req.body
+    const { user_id, mediaDetailId, mediaId, score, review, avatar, title, poster, updatedOn } = req.body
 
-    // const reviewedMedia = await Media.findById(req.params.mediaId)
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
-    // console.log(reviewedMediaDetail);
 
     if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
-      return res.status(400).json({ error: 'only one review can be added per user' })
+      return res.status(405).json({ error: 'only one review can be added per user' })
     }
+
+    const user = await User.findById(user_id)
   
     const newReview = new RottenReviews({
-      mediaDetailId: mediaDetailId,
-      mediaId: mediaId,
-      user: user,
-      avatar: avatar,
-      title: title,
-      poster: poster,
-      score: score,
-      review: review,
-      updatedOn: updatedOn
+      mediaDetailId,
+      mediaId,
+      user,
+      avatar,
+      title,
+      poster,
+      score,
+      user: user.username,
+      review,
+      updatedOn
     })
 
-    reviewedMediaDetail.rottenReviews.push(newReview)
+    user.reviews.push(newReview._id)
 
+    reviewedMediaDetail.rottenReviews.push(newReview)
+    
+    await user.save()
     await newReview.save()
     const result = await reviewedMediaDetail.save()
 
@@ -54,10 +60,17 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
 
 rottenReviewRouter.route('/:mediaDetailId/:reviewId')
   .delete(async (req, res) => {
-    const { mediaDetailId, reviewId } = req.params
-
+    const { user_id, mediaDetailId, reviewId } = req.params
+    console.log({reviewId});
     const mediaDetail = await MediaDetail.findById(mediaDetailId)
     mediaDetail.rottenReviews.id(reviewId).remove()
+    console.log(user_id);
+
+    await User.findByIdAndUpdate(user_id, {
+      $pull: {
+        review: {_id: reviewId}
+      }
+    })
     
     await mediaDetail.save()
     await RottenReviews.findByIdAndDelete(reviewId)
