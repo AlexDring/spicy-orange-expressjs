@@ -1,6 +1,6 @@
 const recommendationRouter = require('express').Router()
-const Media = require('../models/media')
-const MediaDetail = require('../models/mediaDetail')
+const Recommendation = require('../models/recommendation')
+const RecommendationDetail = require('../models/recommendationDetail')
 const User = require('../models/user')
 const { jwtCheck } = require('../utils/middleware')
 
@@ -9,14 +9,12 @@ recommendationRouter.route('/')
     const page = parseInt(req.query.page) || 0;
     // const limit = parseInt(req.query.limit) || 3;
     const search = req.query.title === 'all' ? {} : { Title: { "$regex": req.query.title, "$options": "i" } }
+    console.log(search);
+    
+    const response = await Recommendation.find(search).sort('-dateAdded').skip(page * 12).limit(12)
 
-    const response = await Media
-    .find(search)
-    .sort('-dateAdded')
-    .skip(page * 12)
-    .limit(12)
-
-    const count = await Media.countDocuments(search)
+    console.log(response);
+    const count = await Recommendation.countDocuments(search)
 
     res.json({
       recommendations: response,
@@ -25,26 +23,24 @@ recommendationRouter.route('/')
   })
   .post(jwtCheck, async (req, res) => {
     const body = req.body
-    const mediaExists = await MediaDetail.exists({ imdbID: body.imdbID })
+    const recommendationExists = await RecommendationDetail.exists({ imdbID: body.imdbID })
 
-    if(mediaExists) {
-      return res.status(409).json({ error: 'This recommendation has already been added. Use the search on the Recommendations page to find.' })
+    if(recommendationExists) {
+      return res.status(409).json({ error: 'This recommendation has already been added. Use the search bar on the Recommendations page to find.' })
     }
 
     const user = await User.findById(body.user_id)
 
-    const savedMediaDetail = new MediaDetail({
+    const savedRecommendationDetail = new RecommendationDetail({
       Actors: body.Actors,
       Awards: body.Awards,
       BoxOffice: body.BoxOffice,
       Country: body.Country,
-      DVD: body.DVD,
       Plot: body.Plot,
       Production: body.Production,
       Rated: body.Rated,
       Ratings: body.Ratings,
       Released: body.Released,
-      Website: body.Website,
       Writer: body.Writer,
       imdbID: body.imdbID,
       imdbVotes: body.imdbVotes,
@@ -52,7 +48,7 @@ recommendationRouter.route('/')
       userId: user._id
     })
 
-    const savedMedia = new Media({
+    const savedRecommendation = new Recommendation({
       Poster: body.Poster,
       Title: body.Title,
       Type: body.Type,
@@ -66,51 +62,51 @@ recommendationRouter.route('/')
       Type: body.Type,
       dateAdded: body.date_added,
       user: user.username,
-      mediaDetail: savedMediaDetail._id
+      recommendationDetail: savedRecommendationDetail._id
     })
 
-    await savedMediaDetail.save()
-    const media = await savedMedia.save()
+    await savedRecommendationDetail.save()
+    const recommendation = await savedRecommendation.save()
 
-    user.recommendations.push(media._id)
+    user.recommendations.push(recommendation._id)
     await user.save()
 
-    res.status(201).json(savedMedia)
+    res.status(201).json(savedRecommendation)
   })
 
 recommendationRouter.route('/:id')
   .get(async (req, res) => {
-    const response = await Media.findById(req.params.id).populate('mediaDetail')
+    const response = await Recommendation.findById(req.params.id).populate('recommendationDetail')
 
     res.json(response)
   })
 
-  recommendationRouter.delete('/:media_id/:mediaDetail_id', 
+  recommendationRouter.delete('/:recommendation_id/:recommendationDetail_id', 
     jwtCheck, async (req, res) => {
-      const { media_id, mediaDetail_id } = req.params
-      const media = await Media.findById(media_id)
-      const mediaDetail = await MediaDetail.findById(mediaDetail_id)
+      const { recommendation_id, recommendationDetail_id } = req.params
+      const recommendation = await Recommendation.findById(recommendation_id)
+      const recommendationDetail = await RecommendationDetail.findById(recommendationDetail_id)
 
-      // if(req.user._id !== mediaDetail.userId) {
+      // if(req.user._id !== recommendationDetail.userId) {
       //   return res.status(405).json({ error: 'only the user who added the recommendation can delete it' })
       // }
 
-      if(mediaDetail.rottenReviews.length > 0) {
+      if(recommendationDetail.rottenReviews.length > 0) {
         return res.status(405).json({ error: `Recommendations that have rotten reviews can't be deleted.` })
       }
 
-      if(mediaDetail.inWatchlist.length > 0) {
+      if(recommendationDetail.inWatchlist.length > 0) {
         return res.status(405).json({ error: `Can't delete this recommendation, its been added to someones watchlist.` })
       }
 
       await User.findByIdAndUpdate(req.user._id, {
         $pull: {
-          recommendations: {_id: media_id}
+          recommendations: {_id: recommendation_id}
         }
       })
 
-      await media.remove()
-      await mediaDetail.remove()
+      await recommendation.remove()
+      await recommendationDetail.remove()
 
       res.status(204).end()
     }
