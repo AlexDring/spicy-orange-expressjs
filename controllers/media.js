@@ -1,21 +1,20 @@
 const recommendationRouter = require('express').Router()
-const Recommendation = require('../models/media')
-const RecommendationDetail = require('../models/mediaDetail')
+const Recommendation = require('../models/recommendation')
+const RecommendationDetail = require('../models/recommendationDetail')
 const User = require('../models/user')
 const { jwtCheck } = require('../utils/middleware')
 
 recommendationRouter.route('/')
   .get(async (req, res) => {
+    console.log(req);
     const page = parseInt(req.query.page) || 0;
     // const limit = parseInt(req.query.limit) || 3;
     const search = req.query.title === 'all' ? {} : { Title: { "$regex": req.query.title, "$options": "i" } }
+    console.log(search);
+    
+    const response = await Recommendation.find(search).sort('-dateAdded').skip(page * 12).limit(12)
 
-    const response = await Recommendation
-    .find(search)
-    .sort('-dateAdded')
-    .skip(page * 12)
-    .limit(12)
-
+    console.log(response);
     const count = await Recommendation.countDocuments(search)
 
     res.json({

@@ -1,9 +1,7 @@
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
-// const rottenReviewSchema = require('../models/rottenReview')
 
-const mediaDetailSchema = new mongoose.Schema({
-  // media: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+const recommendationDetailSchema = new mongoose.Schema({
   Rated: String,
   Released: String,
   Writer: String,
@@ -28,6 +26,6 @@ const mediaDetailSchema = new mongoose.Schema({
   userId: String
 })
 
-mediaDetailSchema.plugin(uniqueValidator)
+recommendationDetailSchema.plugin(uniqueValidator)
 
-module.exports = mongoose.model('MediaDetail', mediaDetailSchema)
+module.exports = mongoose.model('RecommendationDetail', recommendationDetailSchema)

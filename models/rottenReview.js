@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Media = require('../models/media')
+const Recommendation = require('../models/recommendation')
 
 const rottenReviewSchema = new mongoose.Schema({
   mediaDetailId: String,
@@ -30,12 +30,12 @@ rottenReviewSchema.statics.calcAverageRatings = async function (mediaDetailId, m
   ])
 
   if(stats.length > 0) {
-    await Media.findByIdAndUpdate(mediaId, { // This then gets the relevant media document and updates the rottenCount and rottenAverage with the returned calculations
+    await Recommendation.findByIdAndUpdate(mediaId, { // This then gets the relevant media document and updates the rottenCount and rottenAverage with the returned calculations
       rottenCount: stats[0].nReviews,
       rottenAverage: stats[0].avgReview
     })
   } else { // or sets them to zero
-    await Media.findByIdAndUpdate(mediaId, {
+    await Recommendation.findByIdAndUpdate(mediaId, {
       rottenCount: 0,
       rottenAverage: 0
     })
