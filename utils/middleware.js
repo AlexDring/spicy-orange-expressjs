@@ -1,13 +1,26 @@
-const jwt = require('jsonwebtoken')
+var jwt = require('express-jwt');
+var jwks = require('jwks-rsa');
 
-const tokenExtractor = (request, response, next) => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    request.token = authorization.substring(7)
-  }
+var jwtCheck = jwt({
+  secret: jwks.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: 'https://dev-lx-zfn8b.us.auth0.com/.well-known/jwks.json'
+}),
+  audience: 'https://spicyorange.co.uk',
+  issuer: 'https://dev-lx-zfn8b.us.auth0.com/',
+  algorithms: ['RS256']
+});
 
-  next()
-}
+// const tokenExtractor = (request, response, next) => {
+//   const authorization = request.get('authorization')
+//   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+//     request.token = authorization.substring(7)
+//   }
+
+//   next()
+// }
 
 const authenticateUser = async (req, res, next) => {
   const authHeader = req.get('authorization')
@@ -24,6 +37,7 @@ const authenticateUser = async (req, res, next) => {
 
   next()
 }
+
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
@@ -45,4 +59,4 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-module.exports = { tokenExtractor, authenticateUser, errorHandler, unknownEndpoint }
+module.exports = { authenticateUser, jwtCheck, errorHandler, unknownEndpoint }
