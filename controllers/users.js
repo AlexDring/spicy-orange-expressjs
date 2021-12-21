@@ -1,19 +1,12 @@
 const usersRouter = require('express').Router()
 // A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router. - http://expressjs.com/en/5x/api.html#router
-const bcrypt = require('bcrypt')
-// const { authenticateUser } = require('../utils/middleware')
 const User = require('../models/user')
 const MediaDetail = require('../models/mediaDetail')
 const { jwtCheck } = require('../utils/middleware')
 
 usersRouter.route('/')
   .post(async (req, res) => {
-
     const { auth0_id, username, email } = req.body
-
-    // const saltRounds = 10
-    // const salt = bcrypt.genSaltSync(saltRounds)
-    // const passwordHash = bcrypt.hashSync(password, salt)
     
     const user = new User ({
       auth0_id,
@@ -30,7 +23,6 @@ usersRouter.route('/')
 
 usersRouter.route('/:id')
   .get(async (req, res) => {
-    // const user = await User.findById(req.params.id,)
     const user = await User.findById(req.params.id)
     res.json(user)
   })
