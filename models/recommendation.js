@@ -15,7 +15,7 @@ const recommendationSchema = new mongoose.Schema({
   rottenAverage: Number,
   dateAdded: String,
   user: String,
-  mediaDetail: { type: mongoose.Schema.Types.ObjectId, ref: 'RecommendationDetail' },
+  recommendationDetail: { type: mongoose.Schema.Types.ObjectId, ref: 'RecommendationDetail' },
 })
 
 module.exports = mongoose.model('Recommendation', recommendationSchema)

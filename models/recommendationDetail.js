@@ -15,10 +15,8 @@ const recommendationDetailSchema = new mongoose.Schema({
     type: String,
     unique: true
   },
-  DVD: String,
   BoxOffice: String,
   Production: String,
-  Website: String,
   Response: String,
   dateAdded: String,
   inWatchlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
