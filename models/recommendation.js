@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const mediaSchema = new mongoose.Schema({
+const recommendationSchema = new mongoose.Schema({
   Poster: String,
   Title: String,
   Type: String,
@@ -15,7 +15,7 @@ const mediaSchema = new mongoose.Schema({
   rottenAverage: Number,
   dateAdded: String,
   user: String,
-  mediaDetail: { type: mongoose.Schema.Types.ObjectId, ref: 'MediaDetail' },
+  mediaDetail: { type: mongoose.Schema.Types.ObjectId, ref: 'RecommendationDetail' },
 })
 
-module.exports = mongoose.model('Media', mediaSchema)
+module.exports = mongoose.model('Recommendation', recommendationSchema)

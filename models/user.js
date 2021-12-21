@@ -14,13 +14,13 @@ const userSchema = new mongoose.Schema({
   email: String,
   passwordHash: String,
   avatar: String,
-  recommendations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }],
+  recommendations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' }],
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
   watchlist: [{
-    recommendation: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    recommendation: { type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' },
     date_added: Date,
   }],
-  watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }]
+  watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' }]
 })
 
 // userSchema.plugin(uniqueValidator)

@@ -1,6 +1,6 @@
 const rottenReviewRouter = require('express').Router()
 const RottenReviews = require('../models/rottenReview')
-const RecommendationDetail = require('../models/mediaDetail')
+const RecommendationDetail = require('../models/recommendationDetail')
 const User = require('../models/user')
 const { jwtCheck } = require('../utils/middleware')
 
