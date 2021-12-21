@@ -21,21 +21,21 @@ rottenReviewRouter.get('/', async (req, res) => {
   })
 })
 
-rottenReviewRouter.route('/:mediaDetailId')
+rottenReviewRouter.route('/:recommendationDetailId')
   .post(jwtCheck, async (req, res) => {
-    const { user_id, mediaDetailId, mediaId, score, review, avatar, title, poster, updatedOn } = req.body
+    const { userId, recommendationDetailId, recommendationId, score, review, avatar, title, poster, updatedOn } = req.body
 
-    const reviewedRecommendationDetail = await RecommendationDetail.findById(req.params.mediaDetailId)
+    const reviewedRecommendationDetail = await RecommendationDetail.findById(req.params.recommendationDetailId)
 
-    const user = await User.findById(user_id)
+    const user = await User.findById(userId)
 
     if(reviewedRecommendationDetail.rottenReviews.find(r => r.user === user)) {
       return res.status(405).json({ error: 'only one review can be added per user' })
     }
   
     const newReview = new RottenReviews({
-      mediaDetailId,
-      mediaId,
+      recommendationDetailId,
+      recommendationId,
       user,
       avatar,
       title,
@@ -57,13 +57,13 @@ rottenReviewRouter.route('/:mediaDetailId')
     res.status(201).json(result)
   })
 
-rottenReviewRouter.route('/:mediaDetailId/:reviewId')
+rottenReviewRouter.route('/:recommendationDetailId/:reviewId')
   .delete(jwtCheck, async (req, res) => {
-    const { user_id, mediaDetailId, reviewId } = req.params
-    const recommendationDetail = await RecommendationDetail.findById(mediaDetailId)
+    const { userId, recommendationDetailId, reviewId } = req.params
+    const recommendationDetail = await RecommendationDetail.findById(recommendationDetailId)
     recommendationDetail.rottenReviews.id(reviewId).remove()
 
-    await User.findByIdAndUpdate(user_id, {
+    await User.findByIdAndUpdate(userId, {
       $pull: {
         review: {_id: reviewId}
       }
@@ -76,9 +76,9 @@ rottenReviewRouter.route('/:mediaDetailId/:reviewId')
   })
   .put(jwtCheck, async (req, res) => {
     const body = req.body
-    const { mediaDetailId, reviewId } = req.params
+    const { recommendationDetailId, reviewId } = req.params
 
-    const recommendationDetail = await RecommendationDetail.findById(mediaDetailId)
+    const recommendationDetail = await RecommendationDetail.findById(recommendationDetailId)
     const recommendationDetailReview = recommendationDetail.rottenReviews.id(reviewId)
 
     recommendationDetailReview.score = body.score

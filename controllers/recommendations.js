@@ -6,7 +6,6 @@ const { jwtCheck } = require('../utils/middleware')
 
 recommendationRouter.route('/')
   .get(async (req, res) => {
-    console.log(req);
     const page = parseInt(req.query.page) || 0;
     // const limit = parseInt(req.query.limit) || 3;
     const search = req.query.title === 'all' ? {} : { Title: { "$regex": req.query.title, "$options": "i" } }
@@ -37,13 +36,11 @@ recommendationRouter.route('/')
       Awards: body.Awards,
       BoxOffice: body.BoxOffice,
       Country: body.Country,
-      DVD: body.DVD,
       Plot: body.Plot,
       Production: body.Production,
       Rated: body.Rated,
       Ratings: body.Ratings,
       Released: body.Released,
-      Website: body.Website,
       Writer: body.Writer,
       imdbID: body.imdbID,
       imdbVotes: body.imdbVotes,
@@ -65,7 +62,7 @@ recommendationRouter.route('/')
       Type: body.Type,
       dateAdded: body.date_added,
       user: user.username,
-      mediaDetail: savedRecommendationDetail._id
+      recommendationDetail: savedRecommendationDetail._id
     })
 
     await savedRecommendationDetail.save()
@@ -79,7 +76,7 @@ recommendationRouter.route('/')
 
 recommendationRouter.route('/:id')
   .get(async (req, res) => {
-    const response = await Recommendation.findById(req.params.id).populate('mediaDetail')
+    const response = await Recommendation.findById(req.params.id).populate('recommendationDetail')
 
     res.json(response)
   })
@@ -90,7 +87,7 @@ recommendationRouter.route('/:id')
       const recommendation = await Recommendation.findById(recommendation_id)
       const recommendationDetail = await RecommendationDetail.findById(recommendationDetail_id)
 
-      // if(req.user._id !== mediaDetail.userId) {
+      // if(req.user._id !== recommendationDetail.userId) {
       //   return res.status(405).json({ error: 'only the user who added the recommendation can delete it' })
       // }
 

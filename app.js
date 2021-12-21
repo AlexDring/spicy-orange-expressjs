@@ -7,7 +7,7 @@ const cors = require('cors')
 
 const usersRouter = require('./controllers/users')
 const omdbRouter = require('./controllers/omdb')
-const mediaRouter = require('./controllers/media')
+const recommendationRouter = require('./controllers/recommendations')
 const rottenReviewRouter = require('./controllers/rottenReviews')
 
 const middleware = require('./utils/middleware')
@@ -31,7 +31,7 @@ app.use(express.json())
 
 app.use('/api/users', usersRouter)
 app.use('/api/omdb', omdbRouter)
-app.use('/api/media', mediaRouter)
+app.use('/api/recommendations', recommendationRouter)
 app.use('/api/rottenReviews', rottenReviewRouter)
 
 app.use(middleware.unknownEndpoint)
