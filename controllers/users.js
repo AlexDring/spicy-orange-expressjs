@@ -1,15 +1,16 @@
 const usersRouter = require('express').Router()
 // A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router. - http://expressjs.com/en/5x/api.html#router
 const bcrypt = require('bcrypt')
-const { authenticateUser } = require('../utils/middleware')
+// const { authenticateUser } = require('../utils/middleware')
 const User = require('../models/user')
 const MediaDetail = require('../models/mediaDetail')
+const { jwtCheck } = require('../utils/middleware')
 
 usersRouter.route('/')
   .post(async (req, res) => {
-    console.log(req.body);
+
     const { auth0_id, username, email } = req.body
-    console.log(username, email);
+
     // const saltRounds = 10
     // const salt = bcrypt.genSaltSync(saltRounds)
     // const passwordHash = bcrypt.hashSync(password, salt)
@@ -23,16 +24,14 @@ usersRouter.route('/')
     })
 
     const savedUser = await user.save()
-    console.log(savedUser);
+
     res.json(savedUser)
   })
 
 usersRouter.route('/:id')
   .get(async (req, res) => {
-    console.log(req.params.id);
     // const user = await User.findById(req.params.id,)
     const user = await User.findById(req.params.id)
-    console.log(user);
     res.json(user)
   })
   .put(async (req, res) => {
@@ -68,11 +67,11 @@ usersRouter.route('/:id/watchlist')
 
     res.json(user.watchlist) 
   })
-  .post(async (req, res) => {
+  .post(jwtCheck, async (req, res) => {
+    console.log('authr', req.headers);
     const { recommendation, date_added } = req.body
     const user = await User.findById(req.params.id)
     const recommendationDetail = await MediaDetail.findById(req.body.recommendation_detail_id)
-    console.log(user, recommendationDetail);
 
     user.watchlist.push({ recommendation, date_added })
     recommendationDetail.inWatchlist.push(user._id)

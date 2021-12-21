@@ -2,7 +2,7 @@ const rottenReviewRouter = require('express').Router()
 const RottenReviews = require('../models/rottenReview')
 const MediaDetail = require('../models/mediaDetail')
 const User = require('../models/user')
-const { authenticateUser } = require('../utils/middleware')
+const { jwtCheck } = require('../utils/middleware')
 
 rottenReviewRouter.get('/', async (req, res) => {
   const page = parseInt(req.query.page) || 0;
@@ -21,18 +21,17 @@ rottenReviewRouter.get('/', async (req, res) => {
   })
 })
 
-rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - makes more sense being in rotten review router?
-  .post(async (req, res) => {
-    console.log(req.body);
+rottenReviewRouter.route('/:mediaDetailId')
+  .post(jwtCheck, async (req, res) => {
     const { user_id, mediaDetailId, mediaId, score, review, avatar, title, poster, updatedOn } = req.body
 
     const reviewedMediaDetail = await MediaDetail.findById(req.params.mediaDetailId)
 
+    const user = await User.findById(user_id)
+
     if(reviewedMediaDetail.rottenReviews.find(r => r.user === user)) {
       return res.status(405).json({ error: 'only one review can be added per user' })
     }
-
-    const user = await User.findById(user_id)
   
     const newReview = new RottenReviews({
       mediaDetailId,
@@ -59,12 +58,10 @@ rottenReviewRouter.route('/:mediaDetailId') // Move this from mediaRouter - make
   })
 
 rottenReviewRouter.route('/:mediaDetailId/:reviewId')
-  .delete(async (req, res) => {
+  .delete(jwtCheck, async (req, res) => {
     const { user_id, mediaDetailId, reviewId } = req.params
-    console.log({reviewId});
     const mediaDetail = await MediaDetail.findById(mediaDetailId)
     mediaDetail.rottenReviews.id(reviewId).remove()
-    console.log(user_id);
 
     await User.findByIdAndUpdate(user_id, {
       $pull: {
@@ -77,7 +74,7 @@ rottenReviewRouter.route('/:mediaDetailId/:reviewId')
 
     res.status(204).end()
   })
-  .put(async (req, res) => {
+  .put(jwtCheck, async (req, res) => {
     const body = req.body
     const { mediaDetailId, reviewId } = req.params
 
