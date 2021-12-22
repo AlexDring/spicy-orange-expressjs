@@ -22,6 +22,7 @@ recommendationRouter.route('/')
   })
   .post(jwtCheck, async (req, res) => {
     const body = req.body
+
     const recommendationExists = await Recommendation.exists({ imdbID: body.imdbID })
 
     if(recommendationExists) {
