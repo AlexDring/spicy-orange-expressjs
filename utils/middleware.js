@@ -13,21 +13,21 @@ var jwtCheck = jwt({
   algorithms: ['RS256']
 });
 
-const authenticateUser = async (req, res, next) => {
-  const authHeader = req.get('authorization')
-  if(authHeader) {
-    const token = authHeader.substring(7)
-    try {
-      const user = await jwt.verify(token, process.env.SECRET)
-      req.user = user
-      console.log({user}, 'authenticateUser');
-    } catch(error) {
-      return res.status(401).json({ error: 'token invalid or missing' })
-    }
-  }
+// const authenticateUser = async (req, res, next) => {
+//   const authHeader = req.get('authorization')
+//   if(authHeader) {
+//     const token = authHeader.substring(7)
+//     try {
+//       const user = await jwt.verify(token, process.env.SECRET)
+//       req.user = user
+//       console.log({user}, 'authenticateUser');
+//     } catch(error) {
+//       return res.status(401).json({ error: 'token invalid or missing' })
+//     }
+//   }
 
-  next()
-}
+//   next()
+// }
 
 
 const unknownEndpoint = (request, response) => {
@@ -50,4 +50,4 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-module.exports = { authenticateUser, jwtCheck, errorHandler, unknownEndpoint }
+module.exports = { jwtCheck, errorHandler, unknownEndpoint }

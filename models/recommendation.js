@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
 const recommendationSchema = new mongoose.Schema({
   Poster: String,
@@ -15,13 +16,10 @@ const recommendationSchema = new mongoose.Schema({
   rottenAverage: Number,
   dateAdded: String,
   user: String,
-  // recommendationDetail: { type: mongoose.Schema.Types.ObjectId, ref: 'RecommendationDetail' },
-  // Rated: String,
   Released: String,
   Writer: String,
   Actors: String,
   Plot: String,
-  // Country: String,
   Awards: String,
   Ratings: [{ Source: String, Value: String }],
   imdbVotes: String,
@@ -37,5 +35,7 @@ const recommendationSchema = new mongoose.Schema({
   rottenReviews: [{ score: Number, user: String, review: String }],
   userId: String
 })
+
+recommendationSchema.plugin(uniqueValidator)
 
 module.exports = mongoose.model('Recommendation', recommendationSchema)

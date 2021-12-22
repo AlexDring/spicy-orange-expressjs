@@ -1,7 +1,6 @@
 const usersRouter = require('express').Router()
 // A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router. - http://expressjs.com/en/5x/api.html#router
 const User = require('../models/user')
-const RecommendationDetail = require('../models/recommendationDetail')
 const Recommendation = require('../models/recommendation')
 const { jwtCheck } = require('../utils/middleware')
 
