@@ -23,7 +23,8 @@ recommendationRouter.route('/')
   })
   .post(jwtCheck, async (req, res) => {
     const body = req.body
-    const recommendationExists = await RecommendationDetail.exists({ imdbID: body.imdbID })
+    // const recommendationExists = await RecommendationDetail.exists({ imdbID: body.imdbID })
+    const recommendationExists = await Recommendation.exists({ imdbID: body.imdbID })
 
     if(recommendationExists) {
       return res.status(409).json({ error: 'This recommendation has already been added. Use the search bar on the Recommendations page to find.' })
@@ -31,7 +32,38 @@ recommendationRouter.route('/')
 
     const user = await User.findById(body.user_id)
 
-    const savedRecommendationDetail = new RecommendationDetail({
+    // const savedRecommendationDetail = new RecommendationDetail({
+    //   Actors: body.Actors,
+    //   Awards: body.Awards,
+    //   BoxOffice: body.BoxOffice,
+    //   Country: body.Country,
+    //   Plot: body.Plot,
+    //   Production: body.Production,
+    //   Rated: body.Rated,
+    //   Ratings: body.Ratings,
+    //   Released: body.Released,
+    //   Writer: body.Writer,
+    //   imdbID: body.imdbID,
+    //   imdbVotes: body.imdbVotes,
+    //   rottenReviews: body.rottenGas,
+    //   userId: user._id
+    // })
+
+    const savedRecommendation = new Recommendation({
+      Poster: body.Poster,
+      Title: body.Title,
+      Type: body.Type,
+      Year: body.Year,
+      Runtime: body.Runtime,
+      Director: body.Director,
+      Genre: body.Genre,
+      Language: body.Language,
+      Metascore: body.Metascore,
+      imdbRating: body.imdbRating,
+      Type: body.Type,
+      dateAdded: body.date_added,
+      user: user.username,
+      // recommendationDetail: savedRecommendationDetail._id
       Actors: body.Actors,
       Awards: body.Awards,
       BoxOffice: body.BoxOffice,
@@ -48,24 +80,7 @@ recommendationRouter.route('/')
       userId: user._id
     })
 
-    const savedRecommendation = new Recommendation({
-      Poster: body.Poster,
-      Title: body.Title,
-      Type: body.Type,
-      Year: body.Year,
-      Runtime: body.Runtime,
-      Director: body.Director,
-      Genre: body.Genre,
-      Language: body.Language,
-      Metascore: body.Metascore,
-      imdbRating: body.imdbRating,
-      Type: body.Type,
-      dateAdded: body.date_added,
-      user: user.username,
-      recommendationDetail: savedRecommendationDetail._id
-    })
-
-    await savedRecommendationDetail.save()
+    // await savedRecommendationDetail.save()
     const recommendation = await savedRecommendation.save()
 
     user.recommendations.push(recommendation._id)
@@ -76,7 +91,8 @@ recommendationRouter.route('/')
 
 recommendationRouter.route('/:id')
   .get(async (req, res) => {
-    const response = await Recommendation.findById(req.params.id).populate('recommendationDetail')
+    const response = await Recommendation.findById(req.params.id)
+    // .populate('recommendationDetail')
 
     res.json(response)
   })

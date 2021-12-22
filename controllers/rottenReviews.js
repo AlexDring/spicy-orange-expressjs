@@ -23,7 +23,7 @@ rottenReviewRouter.get('/', async (req, res) => {
 
 rottenReviewRouter.route('/:recommendationDetailId')
   .post(jwtCheck, async (req, res) => {
-    const { userId, recommendationDetailId, recommendationId, score, review, avatar, title, poster, updatedOn } = req.body
+    const { userId, recommendationId, score, review, avatar, title, poster, updatedOn } = req.body
 
     const reviewedRecommendationDetail = await RecommendationDetail.findById(req.params.recommendationDetailId)
 
@@ -34,7 +34,6 @@ rottenReviewRouter.route('/:recommendationDetailId')
     }
   
     const newReview = new RottenReviews({
-      recommendationDetailId,
       recommendationId,
       user,
       avatar,

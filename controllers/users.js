@@ -2,14 +2,14 @@ const usersRouter = require('express').Router()
 // A router object is an isolated instance of middleware and routes. You can think of it as a “mini-application,” capable only of performing middleware and routing functions. Every Express application has a built-in app router. - http://expressjs.com/en/5x/api.html#router
 const User = require('../models/user')
 const RecommendationDetail = require('../models/recommendationDetail')
+const Recommendation = require('../models/recommendation')
 const { jwtCheck } = require('../utils/middleware')
 
 usersRouter.route('/')
   .post(async (req, res) => {
-    const { auth0_id, username, email } = req.body
+    const { username, email } = req.body
     
     const user = new User ({
-      // auth0_id,
       username,
       email,
     })
@@ -49,24 +49,27 @@ usersRouter.get('/:id/reviews', async (req, res) => {
 
 usersRouter.route('/:id/watchlist')
   .get(async (req, res) => {
-    const user = await User.findById(req.params.id).populate('watchlist.recommendation')
+    const user = await User.findById(req.params.id).populate('watchlist.recommendationId')
 
     user.watchlist.sort(function(x, y) { // Having to sort this way as using .sort on populate causes bugs when removing from watchlist.
-      return y.date_added - x.date_added;
+      return y.dateAdded - x.dateAdded;
     })
 
     res.json(user.watchlist) 
   })
   .post(jwtCheck, async (req, res) => {
-    console.log('authr', req.headers);
-    const { recommendation, date_added } = req.body
+    const { recommendationId, dateAdded } = req.body
     const user = await User.findById(req.params.id)
-    const recommendationDetail = await RecommendationDetail.findById(req.body.recommendation_detail_id)
+    const recommendation = await Recommendation.findById(recommendationId)
 
-    user.watchlist.push({ recommendation, date_added })
-    recommendationDetail.inWatchlist.push(user._id)
+    if(user.watchlist.some(r => r.recommendationId.toString() === recommendationId)) {
+      return res.status(405).json({ error: 'recommendation already in users watchlist' })
+    }
 
-    await recommendationDetail.save()
+    user.watchlist.push({ recommendationId, dateAdded })
+    recommendation.inWatchlist.push(user._id)
+
+    await recommendation.save()
     const savedUser = await user.save()
 
     res.status(201).json(savedUser.watchlist)
@@ -75,13 +78,13 @@ usersRouter.route('/:id/watchlist')
 usersRouter.delete('/:id/watchlist/:watchlistId', 
   async (req, res) => { 
     const user = await User.findById(req.params.id)
-    const recommendationDetail = await RecommendationDetail.findById(req.body.recommendation_detail_id)
+    const recommendation = await Recommendation.findById(req.body.recommendationId)
 
     user.watchlist.remove(req.params.watchlistId)
-    recommendationDetail.inWatchlist.splice(user._id)
+    recommendation.inWatchlist.splice(user._id)
     
-    await recommendationDetail.save()
     await user.save()
+    await recommendation.save()
     
     res.status(204).end()
   }
