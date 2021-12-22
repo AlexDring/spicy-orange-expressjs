@@ -1,6 +1,6 @@
 const rottenReviewRouter = require('express').Router()
 const RottenReviews = require('../models/rottenReview')
-const RecommendationDetail = require('../models/recommendationDetail')
+const Recommendation = require('../models/recommendation')
 const User = require('../models/user')
 const { jwtCheck } = require('../utils/middleware')
 
@@ -21,20 +21,20 @@ rottenReviewRouter.get('/', async (req, res) => {
   })
 })
 
-rottenReviewRouter.route('/:recommendationDetailId')
+rottenReviewRouter.route('/:recommendationId')
   .post(jwtCheck, async (req, res) => {
-    const { userId, recommendationDetailId, recommendationId, score, review, avatar, title, poster, updatedOn } = req.body
+    const { userId, recommendationId, score, review, avatar, title, poster, updatedOn } = req.body
 
-    const reviewedRecommendationDetail = await RecommendationDetail.findById(req.params.recommendationDetailId)
+    const recommendation = await Recommendation.findById(req.params.recommendationId)
 
     const user = await User.findById(userId)
 
-    if(reviewedRecommendationDetail.rottenReviews.find(r => r.user === user)) {
+    if(recommendation.rottenReviews.find(r => r.user === user.username)) {
+
       return res.status(405).json({ error: 'only one review can be added per user' })
     }
   
     const newReview = new RottenReviews({
-      recommendationDetailId,
       recommendationId,
       user,
       avatar,
@@ -48,44 +48,43 @@ rottenReviewRouter.route('/:recommendationDetailId')
 
     user.reviews.push(newReview._id)
 
-    reviewedRecommendationDetail.rottenReviews.push(newReview)
+    recommendation.rottenReviews.push(newReview)
     
     await user.save()
     await newReview.save()
-    const result = await reviewedRecommendationDetail.save()
+    const result = await recommendation.save()
 
     res.status(201).json(result)
   })
 
-rottenReviewRouter.route('/:recommendationDetailId/:reviewId')
+rottenReviewRouter.route('/:recommendationId/:reviewId')
   .delete(jwtCheck, async (req, res) => {
-    const { userId, recommendationDetailId, reviewId } = req.params
-    const recommendationDetail = await RecommendationDetail.findById(recommendationDetailId)
-    recommendationDetail.rottenReviews.id(reviewId).remove()
-
-    await User.findByIdAndUpdate(userId, {
-      $pull: {
-        review: {_id: reviewId}
-      }
-    })
+    const { recommendationId, reviewId } = req.params
     
-    await recommendationDetail.save()
+    const recommendation = await Recommendation.findById(recommendationId)
+    recommendation.rottenReviews.id(reviewId).remove()
+    
+    const user = await User.findById(req.body.userId)
+    user.reviews.remove(reviewId) // This works because it's an objectId
+
+    await user.save()
+    await recommendation.save()
     await RottenReviews.findByIdAndDelete(reviewId)
 
     res.status(204).end()
   })
   .put(jwtCheck, async (req, res) => {
+    const { recommendationId, reviewId } = req.params
     const body = req.body
-    const { recommendationDetailId, reviewId } = req.params
 
-    const recommendationDetail = await RecommendationDetail.findById(recommendationDetailId)
-    const recommendationDetailReview = recommendationDetail.rottenReviews.id(reviewId)
+    const recommendation = await Recommendation.findById(recommendationId)
+    const recommendationReview = recommendation.rottenReviews.id(reviewId)
 
-    recommendationDetailReview.score = body.score
-    recommendationDetailReview.review = body.review
-    recommendationDetailReview.updatedOn = body.updatedOn
+    recommendationReview.score = body.score
+    recommendationReview.review = body.review
+    recommendationReview.updatedOn = body.updatedOn
     
-    const result = await recommendationDetail.save()
+    const result = await recommendation.save()
 
     await RottenReviews.findByIdAndUpdate(reviewId, body)
 

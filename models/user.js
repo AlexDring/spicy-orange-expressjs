@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema({
   recommendations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' }],
   reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }],
   watchlist: [{
-    recommendation: { type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' },
-    date_added: Date,
+    recommendationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' },
+    dateAdded: Date,
   }],
   watched: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recommendation' }]
 })

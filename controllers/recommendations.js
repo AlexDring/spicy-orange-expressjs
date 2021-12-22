@@ -1,6 +1,5 @@
 const recommendationRouter = require('express').Router()
 const Recommendation = require('../models/recommendation')
-const RecommendationDetail = require('../models/recommendationDetail')
 const User = require('../models/user')
 const { jwtCheck } = require('../utils/middleware')
 
@@ -23,7 +22,8 @@ recommendationRouter.route('/')
   })
   .post(jwtCheck, async (req, res) => {
     const body = req.body
-    const recommendationExists = await RecommendationDetail.exists({ imdbID: body.imdbID })
+
+    const recommendationExists = await Recommendation.exists({ imdbID: body.imdbID })
 
     if(recommendationExists) {
       return res.status(409).json({ error: 'This recommendation has already been added. Use the search bar on the Recommendations page to find.' })
@@ -31,7 +31,20 @@ recommendationRouter.route('/')
 
     const user = await User.findById(body.user_id)
 
-    const savedRecommendationDetail = new RecommendationDetail({
+    const savedRecommendation = new Recommendation({
+      Poster: body.Poster,
+      Title: body.Title,
+      Type: body.Type,
+      Year: body.Year,
+      Runtime: body.Runtime,
+      Director: body.Director,
+      Genre: body.Genre,
+      Language: body.Language,
+      Metascore: body.Metascore,
+      imdbRating: body.imdbRating,
+      Type: body.Type,
+      dateAdded: body.date_added,
+      user: user.username,
       Actors: body.Actors,
       Awards: body.Awards,
       BoxOffice: body.BoxOffice,
@@ -48,24 +61,6 @@ recommendationRouter.route('/')
       userId: user._id
     })
 
-    const savedRecommendation = new Recommendation({
-      Poster: body.Poster,
-      Title: body.Title,
-      Type: body.Type,
-      Year: body.Year,
-      Runtime: body.Runtime,
-      Director: body.Director,
-      Genre: body.Genre,
-      Language: body.Language,
-      Metascore: body.Metascore,
-      imdbRating: body.imdbRating,
-      Type: body.Type,
-      dateAdded: body.date_added,
-      user: user.username,
-      recommendationDetail: savedRecommendationDetail._id
-    })
-
-    await savedRecommendationDetail.save()
     const recommendation = await savedRecommendation.save()
 
     user.recommendations.push(recommendation._id)
@@ -76,37 +71,33 @@ recommendationRouter.route('/')
 
 recommendationRouter.route('/:id')
   .get(async (req, res) => {
-    const response = await Recommendation.findById(req.params.id).populate('recommendationDetail')
+    const response = await Recommendation.findById(req.params.id)
 
     res.json(response)
   })
 
-  recommendationRouter.delete('/:recommendation_id/:recommendationDetail_id', 
+  recommendationRouter.delete('/:recommendationId', 
     jwtCheck, async (req, res) => {
-      const { recommendation_id, recommendationDetail_id } = req.params
-      const recommendation = await Recommendation.findById(recommendation_id)
-      const recommendationDetail = await RecommendationDetail.findById(recommendationDetail_id)
+      const { recommendationId } = req.params
+      const recommendation = await Recommendation.findById(recommendationId)
+      const user = await User.findById(req.body.userId)
+      
+      if(user._id !== recommendation.userId) {
+        return res.status(405).json({ error: 'only the user who added the recommendation can delete it' })
+      }
 
-      // if(req.user._id !== recommendationDetail.userId) {
-      //   return res.status(405).json({ error: 'only the user who added the recommendation can delete it' })
-      // }
-
-      if(recommendationDetail.rottenReviews.length > 0) {
+      if(recommendation.rottenReviews.length > 0) {
         return res.status(405).json({ error: `Recommendations that have rotten reviews can't be deleted.` })
       }
 
-      if(recommendationDetail.inWatchlist.length > 0) {
+      if(recommendation.inWatchlist.length > 0) {
         return res.status(405).json({ error: `Can't delete this recommendation, its been added to someones watchlist.` })
       }
 
-      await User.findByIdAndUpdate(req.user._id, {
-        $pull: {
-          recommendations: {_id: recommendation_id}
-        }
-      })
+      user.recommendations.remove(recommendationId) 
 
+      await user.save()
       await recommendation.remove()
-      await recommendationDetail.remove()
 
       res.status(204).end()
     }
