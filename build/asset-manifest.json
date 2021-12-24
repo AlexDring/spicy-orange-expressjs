@@ -1,0 +1,42 @@
+{
+  "files": {
+    "main.js": "/static/js/main.c22e37f7.chunk.js",
+    "main.js.map": "/static/js/main.c22e37f7.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.3a2fa376.js",
+    "runtime-main.js.map": "/static/js/runtime-main.3a2fa376.js.map",
+    "static/css/2.175c71de.chunk.css": "/static/css/2.175c71de.chunk.css",
+    "static/js/2.4c4dbe64.chunk.js": "/static/js/2.4c4dbe64.chunk.js",
+    "static/js/2.4c4dbe64.chunk.js.map": "/static/js/2.4c4dbe64.chunk.js.map",
+    "static/js/3.a4fa6676.chunk.js": "/static/js/3.a4fa6676.chunk.js",
+    "static/js/3.a4fa6676.chunk.js.map": "/static/js/3.a4fa6676.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.175c71de.chunk.css.map": "/static/css/2.175c71de.chunk.css.map",
+    "static/js/2.4c4dbe64.chunk.js.LICENSE.txt": "/static/js/2.4c4dbe64.chunk.js.LICENSE.txt",
+    "static/media/Certified-small.e1273447.png": "/static/media/Certified-small.e1273447.png",
+    "static/media/Certified.3886244c.png": "/static/media/Certified.3886244c.png",
+    "static/media/adam-loader2.af07dc44.png": "/static/media/adam-loader2.af07dc44.png",
+    "static/media/certtified140.aa7bda2e.png": "/static/media/certtified140.aa7bda2e.png",
+    "static/media/fresh-small.68b99276.png": "/static/media/fresh-small.68b99276.png",
+    "static/media/fresh.d12b31f2.png": "/static/media/fresh.d12b31f2.png",
+    "static/media/fresh140.fb06cbfa.png": "/static/media/fresh140.fb06cbfa.png",
+    "static/media/ga-404.d676a0c3.png": "/static/media/ga-404.d676a0c3.png",
+    "static/media/imdb.b1dd134a.svg": "/static/media/imdb.b1dd134a.svg",
+    "static/media/index.css": "/static/media/poppins-latin-ext-400-normal.53f1614b.woff2",
+    "static/media/700.css": "/static/media/poppins-latin-ext-700-normal.ecb421af.woff2",
+    "static/media/meta-critic.96faf64d.svg": "/static/media/meta-critic.96faf64d.svg",
+    "static/media/noReview-small.947f8b91.png": "/static/media/noReview-small.947f8b91.png",
+    "static/media/noReview.df85651d.png": "/static/media/noReview.df85651d.png",
+    "static/media/300.css": "/static/media/poppins-latin-ext-300-normal.1fc00e2e.woff2",
+    "static/media/spicy-orange-logo.2ca4c46a.svg": "/static/media/spicy-orange-logo.2ca4c46a.svg",
+    "static/media/spicy-orange-logo.dc95243d.png": "/static/media/spicy-orange-logo.dc95243d.png",
+    "static/media/stinker-small.bd32ddd1.png": "/static/media/stinker-small.bd32ddd1.png",
+    "static/media/stinker.ef5becb7.png": "/static/media/stinker.ef5becb7.png",
+    "static/media/stinker140.14b9ae8f.png": "/static/media/stinker140.14b9ae8f.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3a2fa376.js",
+    "static/css/2.175c71de.chunk.css",
+    "static/js/2.4c4dbe64.chunk.js",
+    "static/js/main.c22e37f7.chunk.js"
+  ]
+}

@@ -2,7 +2,6 @@ require('dotenv').config() // config will read your .env file, parse the content
 
 let PORT = process.env.PORT || 3001
 let MONGODB_URI = process.env.NODE_ENV === 'test' ? process.env.TEST_MONGODB_URI : process.env.MONGODB_URI
-process.env.MONGODB_URI
 
 module.exports = {
   PORT,
