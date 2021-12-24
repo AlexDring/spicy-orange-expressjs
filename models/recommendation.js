@@ -34,7 +34,9 @@ const recommendationSchema = new mongoose.Schema({
   dateAdded: String,
   inWatchlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   rottenReviews: [{ score: Number, user: String, review: String }],
-  userId: String
+  userId: String,
+  userAvatar: String,
+  username: String,
 })
 
 recommendationSchema.plugin(uniqueValidator)

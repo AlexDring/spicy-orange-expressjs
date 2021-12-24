@@ -8,11 +8,9 @@ recommendationRouter.route('/')
     const page = parseInt(req.query.page) || 0;
     // const limit = parseInt(req.query.limit) || 3;
     const search = req.query.title === 'all' ? {} : { Title: { "$regex": req.query.title, "$options": "i" } }
-    console.log(search);
-    
+
     const response = await Recommendation.find(search).sort('-dateAdded').skip(page * 12).limit(12)
 
-    console.log(response);
     const count = await Recommendation.countDocuments(search)
 
     res.json({
@@ -29,7 +27,8 @@ recommendationRouter.route('/')
       return res.status(409).json({ error: 'This recommendation has already been added. Use the search bar on the Recommendations page to find.' })
     }
 
-    const user = await User.findById(body.user_id)
+    const user = await User.findById(body.userId)
+    console.log(user);
 
     const savedRecommendation = new Recommendation({
       Poster: body.Poster,
@@ -43,7 +42,7 @@ recommendationRouter.route('/')
       Metascore: body.Metascore,
       imdbRating: body.imdbRating,
       Type: body.Type,
-      dateAdded: body.date_added,
+      dateAdded: body.dateAdded,
       user: user.username,
       Actors: body.Actors,
       Awards: body.Awards,
@@ -58,7 +57,9 @@ recommendationRouter.route('/')
       imdbID: body.imdbID,
       imdbVotes: body.imdbVotes,
       rottenReviews: body.rottenGas,
-      userId: user._id
+      userId: user._id,
+      userAvatar: user.avatar,
+      username: user.username
     })
 
     const recommendation = await savedRecommendation.save()
