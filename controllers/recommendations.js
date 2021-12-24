@@ -81,8 +81,8 @@ recommendationRouter.route('/:id')
       const { recommendationId } = req.params
       const recommendation = await Recommendation.findById(recommendationId)
       const user = await User.findById(req.body.userId)
-      
-      if(user._id !== recommendation.userId) {
+
+      if(user._id.toString() !== recommendation.userId) {
         return res.status(405).json({ error: 'only the user who added the recommendation can delete it' })
       }
 

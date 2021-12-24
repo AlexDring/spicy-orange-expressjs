@@ -31,7 +31,7 @@ usersRouter.route('/:id')
 
     updateUser.avatar = avatar
     const savedUser = await updateUser.save()
-
+    console.log(savedUser);
     res.json(savedUser)
   })
 
@@ -39,6 +39,12 @@ usersRouter.get('/:id/recommendations', async (req, res) => {
   const user = await User.findById(req.params.id).populate({ path: 'recommendations'})
   
   res.json(user.recommendations)
+})
+usersRouter.get('/:username/profile', async (req, res) => {
+  const user = await User.findOne({ username: req.params.username})
+  .populate({ path: 'recommendations', options: { limit: 6  }})
+  .populate({ path: 'reviews', options: { limit: 6 }})
+  res.json(user)
 })
 
 usersRouter.get('/:id/reviews', async (req, res) => {
