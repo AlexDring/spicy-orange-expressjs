@@ -4,6 +4,7 @@
   "description": "Server setup for Spicy Orange Database",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "NODE_ENV=test jest --verbose --runInBand",
     "dev": "nodemon index.js"
   },
