@@ -14,7 +14,7 @@ const middleware = require('./utils/middleware')
 const app = express()
 const morgan = require('morgan');
 
-mongoose.set('useCreateIndex', true)
+// mongoose.set('useCreateIndex', true)
 
 mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
