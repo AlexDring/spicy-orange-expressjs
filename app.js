@@ -30,6 +30,13 @@ app.use(morgan('tiny'))
 app.use(express.json())
 app.use(express.static('build')) // http://expressjs.com/en/starter/static-files.html Whenever express gets an HTTP GET request it will first check if the build directory contains a file corresponding to the request's address. If a correct file is found, express will return it.
 
+app.get("*", (req, res) => {
+  let url = path.join(__dirname, './build', 'index.html');
+  if (!url.startsWith('/app/')) // since we're on local windows
+    url = url.substring(1);
+  res.sendFile(url);
+});
+
 app.use('/api/users', usersRouter)
 app.use('/api/omdb', omdbRouter)
 app.use('/api/recommendations', recommendationRouter)
