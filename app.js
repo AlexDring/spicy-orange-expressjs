@@ -4,6 +4,7 @@ require('express-async-errors');
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const path = require('path'); 
 
 const usersRouter = require('./controllers/users')
 const omdbRouter = require('./controllers/omdb')
@@ -29,6 +30,15 @@ app.use(cors())
 app.use(morgan('tiny'))
 app.use(express.json())
 app.use(express.static('build')) // http://expressjs.com/en/starter/static-files.html Whenever express gets an HTTP GET request it will first check if the build directory contains a file corresponding to the request's address. If a correct file is found, express will return it.
+
+app.use(express.static(path.join(__dirname, 'build'))); 
+
++app.get('/', function(req, res) {
+  -app.get('/*', function (req, res) {
+      res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    });
+});
+
 
 app.use('/api/users', usersRouter)
 app.use('/api/omdb', omdbRouter)
