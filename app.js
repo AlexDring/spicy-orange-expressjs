@@ -31,11 +31,12 @@ app.use(morgan('tiny'))
 app.use(express.json())
 app.use(express.static('build')) // http://expressjs.com/en/starter/static-files.html Whenever express gets an HTTP GET request it will first check if the build directory contains a file corresponding to the request's address. If a correct file is found, express will return it.
 
-app.use(express.static(path.join(__dirname, 'build'))); 
+app.use(express.static(path.join(__dirname, './build')));  // https://create-react-app.dev/docs/deployment#serving-apps-with-client-side-routing
 
 +app.get('/', function(req, res) {
   -app.get('/*', function (req, res) {
-      res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    console.log(object);
+      res.sendFile(path.join(__dirname, './build', 'index.html'));
     });
 });
 
