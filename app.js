@@ -40,10 +40,8 @@ app.use(express.static('build')) // http://expressjs.com/en/starter/static-files
 //     });
 // });
 
-app.use(express.static(path.join(__dirname, 'build')));
-app.get('*', function(req, res) {
-  console.log(__dirname, 'build', 'index.html');
-  res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+app.get('/*', function(req, res) {
+  res.sendFile(path.join('build', 'index.html'));
 });
 
 
