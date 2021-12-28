@@ -40,7 +40,8 @@ app.use(express.static(path.join(__dirname, 'build'))) // http://expressjs.com/e
 //     });
 // });
 
-app.get('/*', function(req, res) {
+app.get('*', function(req, res) {
+  console.log(__dirname, 'build', 'index.html');
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
