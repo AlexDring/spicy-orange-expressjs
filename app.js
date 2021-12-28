@@ -29,7 +29,7 @@ mongoose.set('useFindAndModify', false)
 app.use(cors())
 app.use(morgan('tiny'))
 app.use(express.json())
-app.use(express.static(path.join(__dirname, 'build'))) // http://expressjs.com/en/starter/static-files.html Whenever express gets an HTTP GET request it will first check if the build directory contains a file corresponding to the request's address. If a correct file is found, express will return it.
+app.use(express.static(path.join('build'))) // http://expressjs.com/en/starter/static-files.html Whenever express gets an HTTP GET request it will first check if the build directory contains a file corresponding to the request's address. If a correct file is found, express will return it.
 
 // app.use(express.static(path.join(__dirname, './build')));  // https://create-react-app.dev/docs/deployment#serving-apps-with-client-side-routing
 
@@ -40,10 +40,10 @@ app.use(express.static(path.join(__dirname, 'build'))) // http://expressjs.com/e
 //     });
 // });
 
-app.get('*', function(req, res) {
-  console.log(__dirname, 'build', 'index.html');
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
+// app.get('*', function(req, res) {
+//   console.log(__dirname, 'build', 'index.html');
+//   res.sendFile(path.join(__dirname, 'build', 'index.html'));
+// });
 
 
 app.use('/api/users', usersRouter)
