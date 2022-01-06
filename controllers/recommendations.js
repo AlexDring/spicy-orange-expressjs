@@ -21,10 +21,13 @@ recommendationRouter.route('/')
   .post(jwtCheck, async (req, res) => {
     const body = req.body
 
-    const recommendationExists = await Recommendation.exists({ imdbID: body.imdbID })
+    const recommendationExists = await Recommendation.findOne({ imdbID: body.imdbID })
 
     if(recommendationExists) {
-      return res.status(409).json({ error: 'This recommendation has already been added. Use the search bar on the Recommendations page to find.' })
+      return res.status(409).json({ 
+        id: recommendationExists._id, 
+        error: `${recommendationExists.user}'s already added this to Spicy Orange Database.` 
+      })
     }
 
     const user = await User.findById(body.userId)

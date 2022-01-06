@@ -33,7 +33,7 @@ const recommendationSchema = new mongoose.Schema({
   Response: String,
   dateAdded: String,
   inWatchlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  rottenReviews: [{ score: Number, user: String, review: String }],
+  rottenReviews: [{ score: Number, user: String, review: String, avatar: String }],
   userId: String,
   userAvatar: String,
   username: String,
