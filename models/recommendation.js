@@ -32,6 +32,7 @@ const recommendationSchema = new mongoose.Schema({
   Production: String,
   Response: String,
   dateAdded: String,
+  totalSeasons: String,
   inWatchlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   rottenReviews: [{ score: Number, user: String, review: String, avatar: String }],
   userId: String,

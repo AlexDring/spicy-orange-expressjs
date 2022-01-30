@@ -31,7 +31,7 @@ recommendationRouter.route('/')
     }
 
     const user = await User.findById(body.userId)
-    console.log(user);
+
 
     const savedRecommendation = new Recommendation({
       Poster: body.Poster,
@@ -57,6 +57,7 @@ recommendationRouter.route('/')
       Ratings: body.Ratings,
       Released: body.Released,
       Writer: body.Writer,
+      totalSeasons: body.totalSeasons,
       imdbID: body.imdbID,
       imdbVotes: body.imdbVotes,
       rottenReviews: body.rottenGas,
@@ -76,7 +77,9 @@ recommendationRouter.route('/')
 recommendationRouter.route('/:id')
   .get(async (req, res) => {
     const response = await Recommendation.findById(req.params.id)
-
+    console.log(response.inWatchlist);
+    const users = await User.find({ _id: response.inWatchlist})
+    console.log(users);
     res.json(response)
   })
 
